@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Theme System Palette */
+  --bg-dark: #0B0F14;
+  --bg-surface: #141A22;
+  --bg-card: #1A222D;
+  --divider: rgba(255, 255, 255, 0.06);
+
+  /* Color System */
+  --primary: #10B981; /* Emerald Green */
+  --secondary: #3B82F6; /* Electric Blue */
+  --warning: #F59E0B; /* Amber */
+  --error: #EF4444; /* Red */
+  --success: #10B981; /* Emerald Green (same as primary based on spec or distinct green) */
+  --neutral: #64748B; /* Slate Gray */
+  
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+
+  /* Typography */
+  --font-inter: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-inter);
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  min-width: 375px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism Guidelines - used sparingly */
+.glass-panel {
+  background: rgba(26, 34, 45, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--divider);
+}
+
+/* Base Card Design */
+.premium-card {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--divider);
+}
+
+/* Typography Utilities */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+p, span, div {
+  font-weight: 400;
+}
+
+/* Numeric tabular data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Layout Utilities (Mobile First) */
+.container {
+  width: 100%;
+  max-width: 430px; /* Supporting up to 430px well */
+  margin: 0 auto;
+  padding: 0 16px;
+}
