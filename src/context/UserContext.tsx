@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { calculateTargets } from '../engine/calculateTargets';
+import { getRDA } from '../data/rdaTable';
+import type { NutritionTargets, MicroRDA } from '../types/nutrition.types';
 
 export interface User {
   id: string;
@@ -21,6 +24,10 @@ export interface User {
 
 interface UserContextType {
   currentUser: User | null;
+  /** Computed daily macro targets, populated after authentication */
+  nutritionTargets: NutritionTargets | null;
+  /** Personalised RDA values, populated after authentication */
+  microRDA: MicroRDA | null;
   loading: boolean;
   error: string | null;
   registerUser: (userData: Omit<User, 'id'> & { password?: string }) => Promise<boolean>;
@@ -31,8 +38,35 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+/** Derives nutrition targets + RDA from a resolved User object */
+function deriveTargets(user: User): { targets: NutritionTargets; rda: MicroRDA } {
+  const dob = new Date(user.dob);
+  const age = Math.floor((Date.now() - dob.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+
+  const targets = calculateTargets({
+    age,
+    gender: user.gender,
+    weight: user.weight,
+    height: user.height,
+    activityLevel: user.activityLevel,
+    primaryGoal: user.primaryGoal,
+    pregnancyStatus: user.pregnancyStatus,
+  });
+
+  const rda = getRDA({
+    age,
+    gender: user.gender,
+    isPregnant: user.pregnancyStatus.isPregnant,
+    isBreastfeeding: user.pregnancyStatus.isBreastfeeding,
+  });
+
+  return { targets, rda };
+}
+
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [nutritionTargets, setNutritionTargets] = useState<NutritionTargets | null>(null);
+  const [microRDA, setMicroRDA] = useState<MicroRDA | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +88,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (response.ok) {
           const userData = await response.json();
-          setCurrentUser({
+          const user: User = {
             id: userData._id || userData.id,
             name: userData.name,
             email: userData.email,
@@ -67,8 +101,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             primaryGoal: userData.primaryGoal,
             healthPriorities: userData.healthPriorities,
             dietType: userData.dietType,
-            dietaryRestrictions: userData.dietaryRestrictions
-          });
+            dietaryRestrictions: userData.dietaryRestrictions,
+          };
+          setCurrentUser(user);
+          const { targets, rda } = deriveTargets(user);
+          setNutritionTargets(targets);
+          setMicroRDA(rda);
         } else {
           // Token is invalid/expired
           sessionStorage.removeItem('token');
@@ -103,6 +141,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       sessionStorage.setItem('token', data.token);
       setCurrentUser(data.user);
+      const { targets, rda } = deriveTargets(data.user);
+      setNutritionTargets(targets);
+      setMicroRDA(rda);
       setLoading(false);
       return true;
     } catch (err) {
@@ -132,6 +173,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       sessionStorage.setItem('token', data.token);
       setCurrentUser(data.user);
+      const { targets: loginTargets, rda: loginRDA } = deriveTargets(data.user);
+      setNutritionTargets(loginTargets);
+      setMicroRDA(loginRDA);
       setLoading(false);
       return true;
     } catch (err) {
@@ -144,6 +188,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logoutUser = () => {
     sessionStorage.removeItem('token');
     setCurrentUser(null);
+    setNutritionTargets(null);
+    setMicroRDA(null);
   };
 
   const clearError = () => setError(null);
@@ -152,6 +198,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <UserContext.Provider
       value={{
         currentUser,
+        nutritionTargets,
+        microRDA,
         loading,
         error,
         registerUser,

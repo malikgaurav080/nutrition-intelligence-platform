@@ -77,3 +77,104 @@ p, span, div {
   margin: 0 auto;
   padding: 0 16px;
 }
+
+/* ─── Dashboard Animations ─────────────────────────────── */
+
+@keyframes ring-fill {
+  from { stroke-dashoffset: var(--ring-start, 400); }
+  to   { stroke-dashoffset: var(--ring-end, 0); }
+}
+
+@keyframes bar-expand {
+  from { width: 0%; }
+  to   { width: var(--bar-target, 0%); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out both;
+}
+
+/* ─── Health Score Colour Utilities ─────────────────────── */
+/* PRD 6.3: Green ≥80%, Indigo 60–79%, Amber 40–59%, Red <40% */
+
+.score-green  { color: #10B981; stroke: #10B981; }
+.score-indigo { color: #6366F1; stroke: #6366F1; }
+.score-amber  { color: #F59E0B; stroke: #F59E0B; }
+.score-red    { color: #EF4444; stroke: #EF4444; }
+
+.score-green-bg  { background-color: rgba(16, 185, 129, 0.12); }
+.score-indigo-bg { background-color: rgba(99, 102, 241, 0.12); }
+.score-amber-bg  { background-color: rgba(245, 158, 11, 0.12); }
+.score-red-bg    { background-color: rgba(239, 68, 68, 0.12); }
+
+/* ─── Bottom Navigation Bar ─────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 398px;
+  background: rgba(20, 26, 34, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--divider);
+  border-radius: 20px;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.bottom-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.bottom-nav a.active,
+.bottom-nav a:hover {
+  color: var(--primary);
+}
+
+.bottom-nav a svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ─── Progress Bar Base ──────────────────────────────────── */
+.progress-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  animation: bar-expand 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ─── Section Heading ────────────────────────────────────── */
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
