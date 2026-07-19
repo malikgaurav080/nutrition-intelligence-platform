@@ -1,3 +1,8 @@
+# 🥗 Vegetarian Food Database
+
+The following is the structured data for the vegetarian food database used in the Nutrition Engine.
+
+```typescript
 export const VEGETARIAN_FOODS: FoodItem[] = [
   // --- Proteins & Dairy ---
   {
@@ -469,3 +474,4 @@ export const VEGETARIAN_FOODS: FoodItem[] = [
     micros: { vitA: 15, vitC: 100, vitD: 0, vitE: 2, vitB12: 0, calcium: 3, iron: 1, zinc: 1, magnesium: 4, potassium: 5, folate: 10, omega3: 0.0 }
   }
 ];
+```
