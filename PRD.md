@@ -717,11 +717,13 @@ Users should understand their health status within 5 seconds of opening the app.
 | Layer | Technology |
 |---|---|
 | Frontend | React + Vite (TypeScript) |
+| Backend | Node.js + Express (TypeScript) |
+| Database | MongoDB (via Mongoose) |
 | Styling | Vanilla CSS + CSS custom properties |
 | Fonts | Google Fonts (Inter) |
 | State | React Context API + useReducer |
-| Persistence | localStorage (user profile + daily logs) |
-| Data | Static TypeScript files (no backend in Phase 1) |
+| Persistence | MongoDB (user profile + daily logs) |
+| Data | API-driven from Backend Express Server |
 | Charts | Custom CSS animations + SVG rings |
 
 ### Key TypeScript Files
@@ -806,7 +808,7 @@ Dashboard (live updates)
 - [ ] Sign Up Step 5 — Diet type
 - [ ] Sign Up Step 6 — Dietary restrictions
 - [ ] Log In screen
-- [ ] Session persistence (localStorage)
+- [ ] Session persistence (JWT/Cookie + MongoDB session)
 
 ### Nutrition Engine
 - [ ] BMR + TDEE calculator

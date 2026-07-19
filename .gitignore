@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+GEMINI.md
+
+# Environment variables
+.env
+.env.*
+server/.env
