@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { useNutrition } from '../context/NutritionContext';
 import { getSystemNutrients, HEALTH_SYSTEM_META } from '../engine/healthScore';
 import type { HealthSystem } from '../engine/healthScore';
-import { EMPTY_DAILY_LOG } from '../types/nutrition.types';
 import MicroNutrientRow from '../components/MicroNutrientRow';
 
 const PRIORITY_MAP: Record<string, HealthSystem> = {
@@ -51,6 +51,22 @@ const MICRO_META: Record<string, { label: string; unit: string }> = {
  */
 export default function Insights() {
   const { currentUser, microRDA } = useUser();
+  const { todayLog } = useNutrition();
+
+  // Compute Daily Log Totals
+  const dailyTotals = useMemo(() => {
+    const totals = {
+      micros: {} as Record<string, number>
+    };
+
+    for (const meal of todayLog.meals) {
+      for (const [key, val] of Object.entries(meal.micros)) {
+        totals.micros[key] = (totals.micros[key] || 0) + val;
+      }
+    }
+
+    return totals;
+  }, [todayLog]);
 
   const selectedSystems: HealthSystem[] = useMemo(() => {
     return (currentUser?.healthPriorities ?? [])
@@ -118,7 +134,7 @@ export default function Insights() {
               {systemNutrients.map(({ key, weight }, i) => {
                 const meta = MICRO_META[key];
                 const target = microRDA ? microRDA[key] : 0;
-                const consumed = EMPTY_DAILY_LOG.micros[key] ?? 0;
+                const consumed = dailyTotals.micros[key] ?? 0;
                 return (
                   <MicroNutrientRow
                     key={key}

@@ -117,26 +117,78 @@ export type MicroKey = keyof MicroRDA;
 /** Completion percentage (0–100) for each micronutrient */
 export type MicroCompletions = Record<MicroKey, number>;
 
-/** Today's consumed macro values (grams / kcal) */
-export interface ConsumedMacros {
-  calories: number;
-  protein_g: number;
-  fat_g: number;
-  carbs_g: number;
-  fiber_g: number;
+export interface FoodItem {
+  id: string;
+  name: string;
+  category: 'proteins_dairy' | 'grains_legumes' | 'seeds_nuts' | 'vegetables' | 'fruits';
+  servingSize: string;
+  servingUnit: string;
+  baseQty: number;
+  macros: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    fiber: number;
+  };
+  micros: {
+    vitA: number;
+    vitC: number;
+    vitD: number;
+    vitE: number;
+    vitB12: number;
+    calcium: number;
+    iron: number;
+    zinc: number;
+    magnesium: number;
+    potassium: number;
+    folate: number;
+    omega3: number;
+  };
 }
 
-/** Today's consumed micro values in absolute units (mg, µg, g) */
-export type ConsumedMicros = Partial<Record<MicroKey, number>>;
+export interface LoggedFood {
+  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
+  foodId: string;
+  name: string;
+  servingSize: string;
+  servingUnit: string;
+  baseQty: number;
+  loggedQty: number; // serving size multiplier
+  macros: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    fiber: number;
+  };
+  micros: {
+    vitA: number;
+    vitC: number;
+    vitD: number;
+    vitE: number;
+    vitB12: number;
+    calcium: number;
+    iron: number;
+    zinc: number;
+    magnesium: number;
+    potassium: number;
+    folate: number;
+    omega3: number;
+  };
+}
 
 /** Full daily log combining macros and micros consumed today */
 export interface DailyLog {
-  macros: ConsumedMacros;
-  micros: ConsumedMicros;
+  userId?: string;
+  date: string; // YYYY-MM-DD
+  waterConsumed: number;
+  meals: LoggedFood[];
 }
 
-/** Default zero daily log — used before food logger data is available */
-export const EMPTY_DAILY_LOG: DailyLog = {
-  macros: { calories: 0, protein_g: 0, fat_g: 0, carbs_g: 0, fiber_g: 0 },
-  micros: {},
-};
+/** Default zero daily log — used before food logger data is loaded */
+export const EMPTY_DAILY_LOG = (date: string): DailyLog => ({
+  date,
+  waterConsumed: 0,
+  meals: []
+});

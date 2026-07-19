@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { useNutrition } from '../context/NutritionContext';
 import { buildMicroCompletions } from '../engine/microConverter';
 import { calcOverallScore, calcHealthScore } from '../engine/healthScore';
 import type { HealthSystem } from '../engine/healthScore';
-import { EMPTY_DAILY_LOG } from '../types/nutrition.types';
 import CalorieRing from '../components/CalorieRing';
 import MacroBar from '../components/MacroBar';
 import WaterTracker from '../components/WaterTracker';
@@ -30,15 +30,38 @@ const PRIORITY_MAP: Record<string, HealthSystem> = {
  */
 export default function Dashboard() {
   const { currentUser, nutritionTargets, microRDA, logoutUser } = useUser();
-  const [waterConsumed, setWaterConsumed] = useState(0);
+  const { todayLog, updateWater } = useNutrition();
 
-  // Today's consumed values — zero until food logger (Section 7) is built
-  const dailyLog = EMPTY_DAILY_LOG;
+  // Compute Daily Log Totals
+  const dailyTotals = useMemo(() => {
+    const totals = {
+      calories: 0,
+      protein: 0,
+      fat: 0,
+      carbs: 0,
+      fiber: 0,
+      micros: {} as Record<string, number>
+    };
+
+    for (const meal of todayLog.meals) {
+      totals.calories += meal.macros.calories;
+      totals.protein += meal.macros.protein;
+      totals.fat += meal.macros.fat;
+      totals.carbs += meal.macros.carbs;
+      totals.fiber += meal.macros.fiber;
+
+      for (const [key, val] of Object.entries(meal.micros)) {
+        totals.micros[key] = (totals.micros[key] || 0) + val;
+      }
+    }
+
+    return totals;
+  }, [todayLog]);
 
   const completions = useMemo(() => {
     if (!microRDA) return null;
-    return buildMicroCompletions(dailyLog.micros, microRDA);
-  }, [microRDA]);
+    return buildMicroCompletions(dailyTotals.micros, microRDA);
+  }, [microRDA, dailyTotals]);
 
   const selectedSystems: HealthSystem[] = useMemo(() => {
     return (currentUser?.healthPriorities ?? [])
@@ -47,7 +70,7 @@ export default function Dashboard() {
   }, [currentUser]);
 
   const proteinCompletion = nutritionTargets
-    ? Math.min((dailyLog.macros.protein_g / nutritionTargets.protein_g) * 100, 100)
+    ? Math.min((dailyTotals.protein / nutritionTargets.protein_g) * 100, 100)
     : 0;
 
   const overallScore = useMemo(() => {
@@ -115,14 +138,14 @@ export default function Dashboard() {
       <div className="premium-card animate-fade-up" style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
         <CalorieRing
           target={nutritionTargets?.calories ?? 0}
-          consumed={dailyLog.macros.calories}
+          consumed={dailyTotals.calories}
         />
       </div>
 
       <div className="premium-card animate-fade-up" style={{ marginBottom: 16 }}>
         <MacroBar
           label="Protein"
-          consumed={dailyLog.macros.protein_g}
+          consumed={Math.round(dailyTotals.protein)}
           target={nutritionTargets?.protein_g ?? 0}
           unit="g"
           colour="#10B981"
@@ -130,7 +153,7 @@ export default function Dashboard() {
         />
         <MacroBar
           label="Carbohydrates"
-          consumed={dailyLog.macros.carbs_g}
+          consumed={Math.round(dailyTotals.carbs)}
           target={nutritionTargets?.carbs_g ?? 0}
           unit="g"
           colour="#3B82F6"
@@ -138,7 +161,7 @@ export default function Dashboard() {
         />
         <MacroBar
           label="Fat"
-          consumed={dailyLog.macros.fat_g}
+          consumed={Math.round(dailyTotals.fat)}
           target={nutritionTargets?.fat_g ?? 0}
           unit="g"
           colour="#F59E0B"
@@ -146,7 +169,7 @@ export default function Dashboard() {
         />
         <MacroBar
           label="Fiber"
-          consumed={dailyLog.macros.fiber_g}
+          consumed={Math.round(dailyTotals.fiber)}
           target={nutritionTargets?.fiber_g ?? 0}
           unit="g"
           colour="#8B5CF6"
@@ -157,8 +180,8 @@ export default function Dashboard() {
       {/* ── Water ─────────────────────────────────────────── */}
       <WaterTracker
         targetMl={nutritionTargets?.water_ml ?? 2000}
-        consumed={waterConsumed}
-        onAdd={() => setWaterConsumed(prev => Math.min(prev + 250, nutritionTargets?.water_ml ?? 9999))}
+        consumed={todayLog.waterConsumed}
+        onAdd={() => updateWater(todayLog.waterConsumed + 250)}
       />
 
       {/* ── Health Systems ────────────────────────────────── */}

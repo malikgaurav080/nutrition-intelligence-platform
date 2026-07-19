@@ -1,13 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Splash, SignUp, Login, Dashboard, Meals, Insights, Profile } from './pages';
 import { UserProvider } from './context/UserContext.tsx';
+import { NutritionProvider } from './context/NutritionContext.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import './index.css';
 
 function App() {
   return (
     <UserProvider>
-      <Router>
+      <NutritionProvider>
+        <Router>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Splash />} />
@@ -49,6 +51,7 @@ function App() {
           />
         </Routes>
       </Router>
+      </NutritionProvider>
     </UserProvider>
   );
 }
