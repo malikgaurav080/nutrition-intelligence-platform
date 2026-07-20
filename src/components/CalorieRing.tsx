@@ -3,6 +3,7 @@
 interface CalorieRingProps {
   target: number;
   consumed: number;
+  maintenance?: number;
   size?: number;
 }
 
@@ -10,7 +11,7 @@ interface CalorieRingProps {
  * Animated SVG circular progress ring for calories.
  * PRD Section 6.1 — Calorie Ring widget.
  */
-export default function CalorieRing({ target, consumed, size = 180 }: CalorieRingProps) {
+export default function CalorieRing({ target, consumed, maintenance, size = 180 }: CalorieRingProps) {
   const radius = 70;
   const stroke = 10;
   const circumference = 2 * Math.PI * radius;
@@ -62,14 +63,21 @@ export default function CalorieRing({ target, consumed, size = 180 }: CalorieRin
         </div>
       </div>
 
-      {/* Sub-labels */}
-      <div style={{ display: 'flex', gap: 24 }}>
+      <div style={{ display: 'flex', gap: 20 }}>
         <div style={{ textAlign: 'center' }}>
           <p className="tabular-nums" style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
             {target.toLocaleString()}
           </p>
           <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Target</p>
         </div>
+        {maintenance !== undefined && (
+          <div style={{ textAlign: 'center' }}>
+            <p className="tabular-nums" style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+              {Math.round(maintenance).toLocaleString()}
+            </p>
+            <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Maintenance</p>
+          </div>
+        )}
         <div style={{ textAlign: 'center' }}>
           <p className="tabular-nums" style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
             {remaining.toLocaleString()}

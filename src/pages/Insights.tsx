@@ -161,18 +161,26 @@ export default function Insights() {
           </svg>
           Home
         </NavLink>
+        <NavLink to="/insights" id="insights-nav-insights">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Insights
+        </NavLink>
+        <NavLink to="/health" id="insights-nav-health">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+          Health
+        </NavLink>
         <NavLink to="/meals" id="insights-nav-meals">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
             <path d="M12 8v4l3 3"/>
           </svg>
           Meals
-        </NavLink>
-        <NavLink to="/insights" id="insights-nav-insights">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-          Insights
         </NavLink>
         <NavLink to="/profile" id="insights-nav-profile">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">

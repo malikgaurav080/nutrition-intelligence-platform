@@ -5,3 +5,4 @@ export { default as Dashboard } from './Dashboard.tsx';
 export { default as Meals } from './Meals.tsx';
 export { default as Insights } from './Insights.tsx';
 export { default as Profile } from './Profile.tsx';
+export { default as Health } from './Health.tsx';

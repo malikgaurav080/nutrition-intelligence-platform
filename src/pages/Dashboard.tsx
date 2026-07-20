@@ -2,34 +2,16 @@ import { useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { useNutrition } from '../context/NutritionContext';
-import { buildMicroCompletions } from '../engine/microConverter';
-import { calcOverallScore, calcHealthScore } from '../engine/healthScore';
-import type { HealthSystem } from '../engine/healthScore';
 import CalorieRing from '../components/CalorieRing';
 import MacroBar from '../components/MacroBar';
 import WaterTracker from '../components/WaterTracker';
-import HealthScoreCard from '../components/HealthScoreCard';
-
-/** Maps healthPriorities labels from user profile to HealthSystem keys */
-const PRIORITY_MAP: Record<string, HealthSystem> = {
-  'Brain Health': 'Brain',
-  'Hair Health':  'Hair',
-  'Skin Health':  'Skin',
-  'Bone Health':  'Bone',
-  'Heart Health': 'Heart',
-  'Muscle Health':'Muscle',
-  'Immunity':     'Immunity',
-  'Eye Health':   'Eye',
-  'Blood Health': 'Blood',
-  'Thyroid Health':'Thyroid',
-};
 
 /**
  * Main Dashboard page.
  * PRD Sections 6.1–6.3: Macro widgets, water tracker, health system score cards.
  */
 export default function Dashboard() {
-  const { currentUser, nutritionTargets, microRDA, logoutUser } = useUser();
+  const { currentUser, nutritionTargets, logoutUser } = useUser();
   const { todayLog, updateWater } = useNutrition();
 
   // Compute Daily Log Totals
@@ -57,26 +39,6 @@ export default function Dashboard() {
 
     return totals;
   }, [todayLog]);
-
-  const completions = useMemo(() => {
-    if (!microRDA) return null;
-    return buildMicroCompletions(dailyTotals.micros, microRDA);
-  }, [microRDA, dailyTotals]);
-
-  const selectedSystems: HealthSystem[] = useMemo(() => {
-    return (currentUser?.healthPriorities ?? [])
-      .map(p => PRIORITY_MAP[p])
-      .filter(Boolean);
-  }, [currentUser]);
-
-  const proteinCompletion = nutritionTargets
-    ? Math.min((dailyTotals.protein / nutritionTargets.protein_g) * 100, 100)
-    : 0;
-
-  const overallScore = useMemo(() => {
-    if (!completions || selectedSystems.length === 0) return 0;
-    return calcOverallScore(selectedSystems, completions, proteinCompletion);
-  }, [completions, selectedSystems, proteinCompletion]);
 
   const greeting = (() => {
     const h = new Date().getHours();
@@ -113,25 +75,6 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* ── Overall Score ─────────────────────────────────── */}
-      <div className="premium-card animate-fade-up" style={{ marginBottom: 16, textAlign: 'center', padding: '20px' }}>
-        <p className="section-label">Overall Nutrition Score</p>
-        <p
-          className="tabular-nums"
-          style={{
-            fontSize: '3.5rem',
-            fontWeight: 800,
-            color: overallScore >= 80 ? '#10B981' : overallScore >= 60 ? '#6366F1' : overallScore >= 40 ? '#F59E0B' : '#EF4444',
-            lineHeight: 1,
-          }}
-        >
-          {overallScore}%
-        </p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 6 }}>
-          WHO MAR method · {selectedSystems.length} health {selectedSystems.length === 1 ? 'system' : 'systems'}
-        </p>
-      </div>
-
       {/* ── Daily Macros ─────────────────────────────────── */}
       <p className="section-label" style={{ marginTop: 20 }}>Daily Macros</p>
 
@@ -139,6 +82,7 @@ export default function Dashboard() {
         <CalorieRing
           target={nutritionTargets?.calories ?? 0}
           consumed={dailyTotals.calories}
+          maintenance={nutritionTargets?.tdee ?? 0}
         />
       </div>
 
@@ -184,23 +128,6 @@ export default function Dashboard() {
         onAdd={() => updateWater(todayLog.waterConsumed + 250)}
       />
 
-      {/* ── Health Systems ────────────────────────────────── */}
-      {selectedSystems.length > 0 && (
-        <>
-          <p className="section-label" style={{ marginTop: 20 }}>Health Systems</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {selectedSystems.map((system, i) => (
-              <HealthScoreCard
-                key={system}
-                system={system}
-                score={completions ? calcHealthScore(system, completions, proteinCompletion) : 0}
-                delay={i * 60}
-              />
-            ))}
-          </div>
-        </>
-      )}
-
       {/* ── Bottom Nav ───────────────────────────────────── */}
       <nav className="bottom-nav" aria-label="Main navigation">
         <NavLink to="/dashboard" id="nav-home">
@@ -210,18 +137,26 @@ export default function Dashboard() {
           </svg>
           Home
         </NavLink>
+        <NavLink to="/insights" id="nav-insights">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Insights
+        </NavLink>
+        <NavLink to="/health" id="nav-health">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+          Health
+        </NavLink>
         <NavLink to="/meals" id="nav-meals">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
             <path d="M12 8v4l3 3"/>
           </svg>
           Meals
-        </NavLink>
-        <NavLink to="/insights" id="nav-insights">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-          Insights
         </NavLink>
         <NavLink to="/profile" id="nav-profile">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">

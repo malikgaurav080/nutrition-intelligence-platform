@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Splash, SignUp, Login, Dashboard, Meals, Insights, Profile } from './pages';
+import { Splash, SignUp, Login, Dashboard, Meals, Insights, Profile, Health } from './pages';
 import { UserProvider } from './context/UserContext.tsx';
 import { NutritionProvider } from './context/NutritionContext.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
@@ -38,6 +38,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Insights />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/health" 
+            element={
+              <ProtectedRoute>
+                <Health />
               </ProtectedRoute>
             } 
           />

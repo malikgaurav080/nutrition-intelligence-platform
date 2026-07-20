@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useUser } from '../context/UserContext.tsx';
 
 export default function Profile() {
@@ -60,29 +60,44 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Persistent Bottom Bar placeholder */}
-      <div 
-        className="glass-panel"
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'calc(100% - 40px)',
-          maxWidth: '390px',
-          borderRadius: '16px',
-          padding: '12px 24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
-        }}
-      >
-        <Link to="/dashboard" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }}>Home</Link>
-        <Link to="/meals" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }}>Meals</Link>
-        <Link to="/insights" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }}>Insights</Link>
-        <Link to="/profile" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}>Profile</Link>
-      </div>
+      {/* Bottom Nav */}
+      <nav className="bottom-nav" aria-label="Main navigation">
+        <NavLink to="/dashboard" id="profile-nav-home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          Home
+        </NavLink>
+        <NavLink to="/insights" id="profile-nav-insights">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Insights
+        </NavLink>
+        <NavLink to="/health" id="profile-nav-health">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+          Health
+        </NavLink>
+        <NavLink to="/meals" id="profile-nav-meals">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M12 8v4l3 3"/>
+          </svg>
+          Meals
+        </NavLink>
+        <NavLink to="/profile" id="profile-nav-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Profile
+        </NavLink>
+      </nav>
     </div>
   );
 }

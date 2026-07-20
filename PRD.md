@@ -452,7 +452,7 @@ Overall_Score = Average of all selected Health System Scores
 
 | Widget | Data Points |
 |---|---|
-| Calorie Ring | Target kcal / Consumed kcal / Remaining kcal |
+| Calorie Ring | Target kcal / Consumed kcal / Remaining kcal / Maintenance kcal (TDEE baseline) |
 | Protein Bar | Target g / Consumed g / Remaining g / % |
 | Carbohydrates Bar | Target g / Consumed g / Remaining g / % |
 | Fat Bar | Target g / Consumed g / Remaining g / % |
@@ -467,12 +467,12 @@ Overall_Score = Average of all selected Health System Scores
 | Priority Badge | ⭐⭐⭐ or ⭐⭐ |
 | Health Score Card | e.g. "💇 Hair Health — 65%" with animated ring |
 
-### 6.3 Health System Overview
+### 6.3 Health Status Screen (/health)
 
+- Dedicated Status tab page displaying the overall scoring and priority card systems
 - Animated ring cards per selected priority
-- Overall Nutrition Score prominently shown
-- Tap → detailed nutrient breakdown
-- Color: Green ≥80%, Indigo 60–79%, Amber 40–59%, Red <40%
+- Overall Nutrition Score prominently shown (Green ≥80%, Indigo 60–79%, Amber 40–59%, Red <40%)
+- Tap → detailed nutrient breakdown in Insights tab
 
 ---
 
@@ -698,7 +698,7 @@ Users should understand their health status within 5 seconds of opening the app.
 - Cards should feel lightweight and premium.
 
 #### Navigation
-- Use a clean bottom navigation with five tabs: Home, Meals, Dashboard, Progress, Profile.
+- Use a clean bottom navigation with five tabs in the order: Home, Insights, Health, Meals, Profile.
 - Floating action button: Log Meal.
 - The navigation should always remain accessible.
 
