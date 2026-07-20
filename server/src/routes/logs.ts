@@ -160,4 +160,93 @@ router.post('/water', protect, async (req: AuthRequest, res: Response): Promise<
   }
 });
 
+// @route   POST /api/logs/bulk-food
+// @desc    Log a batch of foods (e.g. finalising a generated recommendation)
+// @access  Private
+router.post('/bulk-food', protect, async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const { date, meals } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (!date || !Array.isArray(meals)) {
+      return res.status(400).json({ message: 'Please provide valid date and meals array' });
+    }
+
+    let log = await DailyLog.findOne({ userId, date });
+
+    if (!log) {
+      log = new DailyLog({
+        userId,
+        date,
+        waterConsumed: 0,
+        meals: []
+      });
+    }
+
+    // Overwrite the current meals list with the new batch
+    log.meals = meals as any;
+    
+    await log.save();
+    res.json(log);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error bulk logging foods', error: error instanceof Error ? error.message : error });
+  }
+});
+
+// @route   POST /api/logs/bulk-slot
+// @desc    Log a batch of foods to a single meal slot (e.g. logging breakfast option)
+// @access  Private
+router.post('/bulk-slot', protect, async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const { date, slot, meals } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (!date || !slot || !Array.isArray(meals)) {
+      return res.status(400).json({ message: 'Please provide valid date, slot, and meals list' });
+    }
+
+    let log = await DailyLog.findOne({ userId, date });
+
+    if (!log) {
+      log = new DailyLog({
+        userId,
+        date,
+        waterConsumed: 0,
+        meals: []
+      });
+    }
+
+    // Clean out existing items in this slot
+    log.meals = log.meals.filter(m => m.slot !== slot) as any;
+
+    // Add new batch of items for this slot
+    for (const item of meals) {
+      log.meals.push({
+        slot,
+        foodId: item.foodId,
+        name: item.name,
+        servingSize: item.servingSize,
+        servingUnit: item.servingUnit,
+        baseQty: item.baseQty,
+        loggedQty: item.loggedQty,
+        macros: item.macros,
+        micros: item.micros
+      } as any);
+    }
+
+    await log.save();
+    res.json(log);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error logging bulk slot', error: error instanceof Error ? error.message : error });
+  }
+});
+
 export default router;

@@ -192,3 +192,46 @@ export const EMPTY_DAILY_LOG = (date: string): DailyLog => ({
   waterConsumed: 0,
   meals: []
 });
+
+export interface SavedMealPlan {
+  _id?: string;
+  name: string;
+  isActive: boolean;
+  meals: {
+    slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
+    items: {
+      foodId: string;
+      name: string;
+      servingSize: string;
+      servingUnit: string;
+      baseQty: number;
+      loggedQty: number;
+      macros: {
+        calories: number;
+        protein: number;
+        carbs: number;
+        fat: number;
+        fiber: number;
+      };
+      micros: {
+        vitA: number;
+        vitC: number;
+        vitD: number;
+        vitE: number;
+        vitB12: number;
+        calcium: number;
+        iron: number;
+        zinc: number;
+        magnesium: number;
+        potassium: number;
+        folate: number;
+        omega3: number;
+      };
+      reason: string;
+    }[];
+    totalCalories: number;
+    totalProtein: number;
+  }[];
+  planDeficiencies: string[];
+  adjustments: { type: string; text: string }[];
+}

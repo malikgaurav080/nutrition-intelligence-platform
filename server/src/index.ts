@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db';
 import authRoutes from './routes/auth';
 import logRoutes from './routes/logs';
+import mealPlanRoutes from './routes/mealPlans';
 
 // Load env vars
 dotenv.config();
@@ -23,6 +24,7 @@ app.use(express.json());
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/logs', logRoutes);
+app.use('/api/meal-plans', mealPlanRoutes);
 
 // Simple healthcheck
 app.get('/health', (req, res) => {

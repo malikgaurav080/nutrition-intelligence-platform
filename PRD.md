@@ -562,6 +562,25 @@ interface FoodItem {
 3. **Swap ingredient** — "Swap apple for papaya for more Vitamin C"
 4. **Nutrient-dense alternative** — "Replace white potato with sweet potato for +150% Vitamin A"
 
+### 7.6 Custom Recommendation Actions & Deficit Audits
+
+#### 1. Custom Diet/Meal Plans (MongoDB Stored Plans)
+The database stores up to 3 custom diet/meal plans per user in a separate collection (`MealPlan`). Users can switch between these 3 stored plans on the UI and toggle one as the "Active Meal Plan". The interface will display the active plan's configurations and suggest: "You can create up to 3 meal plans and switch here."
+
+#### 2. Log Slot from Active Plan
+Instead of logging the entire day's meals at once, logging is done slot-by-slot from the active plan. Clicking a slot-level log button (e.g., "Log Breakfast Option") copies only the recommended items for that specific slot into the user's daily consumed log (`DailyLog`) in the DB.
+
+#### 3. Recommendation Deficit Audit & Gaps Suggestion
+The engine calculates the total macros and micros of any generated or active diet plan against the user's RDA targets. If any priority nutrient falls below 95%:
+- It lists the nutrient as "Deficient in Plan".
+- It suggests a specific dense food from the database to cover the shortage (e.g., "Shortfall of Vitamin C (91% of target). Suggestion: Log 150g Papaya (+100% DV)").
+
+#### 4. Customization Filters & Inline Sizing
+Users can dynamically customize the recommendations:
+- The daily target limits remain locked to the calculated profile targets (loaded from user settings).
+- Portion sizes can be customized inline for each suggested item (using increment/decrement buttons). This dynamically updates that meal slot's calorie and protein totals before logging.
+- Exclude or allow specific ingredients grouped neatly by category (Proteins & Dairy, Grains & Legumes, Seeds & Nuts, Vegetables, Fruits), adjusting recommendations in real-time.
+
 ---
 
 ## 8. 🌐 App Screens & Navigation

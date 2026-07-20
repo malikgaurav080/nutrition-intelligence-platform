@@ -2,6 +2,7 @@ import type { FoodItem, MicroRDA, MicroKey } from '../types/nutrition.types';
 import { VEGETARIAN_FOODS } from '../data/foodDatabase';
 import { getSystemNutrients } from './healthScore';
 import type { HealthSystem } from './healthScore';
+import { dvToAbsolute } from './microConverter';
 
 export interface RecommendedFood {
   food: FoodItem;
@@ -21,6 +22,31 @@ export interface SmartAdjustment {
   text: string;
 }
 
+const HUMAN_MICRO_NAMES: Record<MicroKey, string> = {
+  vitA: 'Vitamin A',
+  vitC: 'Vitamin C',
+  vitD: 'Vitamin D',
+  vitE: 'Vitamin E',
+  vitK: 'Vitamin K',
+  vitB1: 'Vitamin B1',
+  vitB2: 'Vitamin B2',
+  vitB3: 'Vitamin B3',
+  vitB5: 'Vitamin B5',
+  vitB6: 'Vitamin B6',
+  biotin: 'Biotin',
+  folate: 'Folate',
+  vitB12: 'Vitamin B12',
+  calcium: 'Calcium',
+  iron: 'Iron',
+  magnesium: 'Magnesium',
+  potassium: 'Potassium',
+  zinc: 'Zinc',
+  phosphorus: 'Phosphorus',
+  selenium: 'Selenium',
+  iodine: 'Iodine',
+  omega3: 'Omega-3',
+};
+
 /** Check if a food is excluded based on user dietary restrictions */
 function isExcluded(food: FoodItem, restrictions: string[]): boolean {
   for (const r of restrictions) {
@@ -36,7 +62,8 @@ function isExcluded(food: FoodItem, restrictions: string[]): boolean {
 
 /**
  * Generates daily meal suggestions and smart adjustment recommendations.
- * PRD Section 7.4 & 7.5.
+ * Parameters align to profile targets. Allowed/excluded items are used for filtering.
+ * PRD Section 7.4, 7.5 & 7.6.
  */
 export function generateMealPlan(
   remainingCalories: number,
@@ -44,10 +71,21 @@ export function generateMealPlan(
   userRDA: MicroRDA,
   consumedMicros: Partial<Record<MicroKey, number>>,
   selectedSystems: HealthSystem[],
-  restrictions: string[]
-): { meals: RecommendedMeal[]; adjustments: SmartAdjustment[] } {
-  // 1. Filter database
-  const allowedFoods = VEGETARIAN_FOODS.filter(f => !isExcluded(f, restrictions));
+  allowedIngredients: string[],
+  excludedIngredients: string[],
+  restrictions: string[],
+  offset: number = 0
+): { meals: RecommendedMeal[]; adjustments: SmartAdjustment[]; planDeficiencies: string[] } {
+  // 1. Filter database based on restrictions, allowed items, and excluded items
+  let allowedFoods = VEGETARIAN_FOODS.filter(f => !isExcluded(f, restrictions));
+
+  if (allowedIngredients.length > 0) {
+    allowedFoods = allowedFoods.filter(f => allowedIngredients.includes(f.id));
+  }
+
+  if (excludedIngredients.length > 0) {
+    allowedFoods = allowedFoods.filter(f => !excludedIngredients.includes(f.id));
+  }
 
   // 2. Identify highest-deficit nutrients in the user's selected health priorities
   const deficitNutrients: { key: MicroKey; deficit: number }[] = [];
@@ -76,17 +114,13 @@ export function generateMealPlan(
   // 3. Helper to score foods based on how well they address user deficits and protein needs
   const scoreFood = (food: FoodItem): number => {
     let score = 0;
-    // Add protein points
     score += food.macros.protein * 2;
-    // Add fiber points
     score += food.macros.fiber * 1.5;
 
-    // Add points for matching deficit micros
     for (let i = 0; i < keyDeficits.length; i++) {
       const key = keyDeficits[i];
       const dvPct = key in food.micros ? (food.micros as any)[key] : 0;
       if (dvPct > 0) {
-        // Higher points if it solves a larger deficit (earlier in sorted array)
         score += dvPct * (keyDeficits.length - i);
       }
     }
@@ -105,7 +139,6 @@ export function generateMealPlan(
   const meals: RecommendedMeal[] = [];
   const adjustments: SmartAdjustment[] = [];
 
-  // If calorie targets are already hit, suggest lightweight snacks to top off nutrients
   const dailyCaloriesTarget = Math.max(remainingCalories, 300);
 
   // Define meal slot allocations
@@ -123,13 +156,11 @@ export function generateMealPlan(
     let slotCals = 0;
     let slotProtein = 0;
 
-    // Pick 1 high scoring food from each assigned category for the slot
     for (const catName of cats) {
       const candidates = categories[catName];
       if (candidates && candidates.length > 0) {
-        // Pick the top candidate not already chosen
-        const best = candidates[0];
-        // Calculate portion to hit roughly 1/3 of the slot's calorie targets
+        const index = offset % candidates.length;
+        const best = candidates[index];
         const portionCalTarget = slotCalTarget / cats.length;
         const loggedQty = Math.max(parseFloat((portionCalTarget / best.macros.calories).toFixed(1)), 0.5);
 
@@ -140,6 +171,23 @@ export function generateMealPlan(
         });
         slotCals += best.macros.calories * loggedQty;
         slotProtein += best.macros.protein * loggedQty;
+      } else {
+        // Fallback: search general vegetarian database
+        const fallbacks = VEGETARIAN_FOODS.filter(f => f.category === catName && !isExcluded(f, restrictions));
+        if (fallbacks.length > 0) {
+          const index = offset % fallbacks.length;
+          const best = fallbacks[index];
+          const portionCalTarget = slotCalTarget / cats.length;
+          const loggedQty = Math.max(parseFloat((portionCalTarget / best.macros.calories).toFixed(1)), 0.5);
+
+          selectedItems.push({
+            food: best,
+            loggedQty,
+            reason: `Fallback: High in ${best.macros.protein > 10 ? 'Protein' : 'nutrients'}`
+          });
+          slotCals += best.macros.calories * loggedQty;
+          slotProtein += best.macros.protein * loggedQty;
+        }
       }
     }
 
@@ -151,10 +199,9 @@ export function generateMealPlan(
     });
   }
 
-  // 5. Generate Smart Adjustments based on deficiencies
-  // Rule A: High deficit in specific nutrients
+  // 5. Generate Smart Adjustments based on deficits
   if (keyDeficits.includes('magnesium')) {
-    const richMag = allowedFoods.find(f => f.micros.magnesium > 25);
+    const richMag = allowedFoods.find(f => f.micros.magnesium > 25) || VEGETARIAN_FOODS.find(f => f.micros.magnesium > 25);
     if (richMag) {
       adjustments.push({
         type: 'add',
@@ -164,7 +211,7 @@ export function generateMealPlan(
   }
 
   if (keyDeficits.includes('vitC')) {
-    const richC = allowedFoods.find(f => f.micros.vitC > 80);
+    const richC = allowedFoods.find(f => f.micros.vitC > 80) || VEGETARIAN_FOODS.find(f => f.micros.vitC > 80);
     if (richC) {
       adjustments.push({
         type: 'swap',
@@ -174,7 +221,7 @@ export function generateMealPlan(
   }
 
   if (keyDeficits.includes('iron')) {
-    const richIron = allowedFoods.find(f => f.micros.iron > 15);
+    const richIron = allowedFoods.find(f => f.micros.iron > 15) || VEGETARIAN_FOODS.find(f => f.micros.iron > 15);
     if (richIron) {
       adjustments.push({
         type: 'increase',
@@ -183,18 +230,16 @@ export function generateMealPlan(
     }
   }
 
-  // Rule B: Protein deficit
   if (remainingProtein > 15) {
-    const richProt = allowedFoods.find(f => f.category === 'proteins_dairy' && f.macros.protein >= 15);
+    const richProt = allowedFoods.find(f => f.category === 'proteins_dairy' && f.macros.protein >= 15) || VEGETARIAN_FOODS.find(f => f.category === 'proteins_dairy' && f.macros.protein >= 15);
     if (richProt) {
       adjustments.push({
         type: 'alternative',
-        text: `You have ${Math.round(remainingProtein)}g Protein remaining today. Try adding 1 serving of ${richProt.name} (+${richProt.macros.protein}g protein).`
+        text: `Remaining Protein target is ${Math.round(remainingProtein)}g. Consider adding 1 serving of ${richProt.name} (+${richProt.macros.protein}g protein).`
       });
     }
   }
 
-  // Default fallback if no specific deficits
   if (adjustments.length === 0) {
     adjustments.push({
       type: 'alternative',
@@ -202,5 +247,50 @@ export function generateMealPlan(
     });
   }
 
-  return { meals, adjustments };
+  // 6. Recommendation Deficit Audit & Gaps Suggestion (PRD 7.6)
+  const planTotals = {
+    micros: {} as Record<MicroKey, number>
+  };
+
+  for (const meal of meals) {
+    for (const item of meal.items) {
+      const qty = item.loggedQty;
+      for (const key of Object.keys(userRDA) as MicroKey[]) {
+        if (key in item.food.micros) {
+          const dvPct = (item.food.micros as any)[key];
+          const absVal = dvToAbsolute(dvPct, key) * qty;
+          planTotals.micros[key] = (planTotals.micros[key] || 0) + absVal;
+        }
+      }
+    }
+  }
+
+  const planDeficiencies: string[] = [];
+  for (const key of systemNutrientKeys) {
+    const rdaVal = userRDA[key] || 1;
+    const planVal = planTotals.micros[key] || 0;
+    const planCompletionPct = (planVal / rdaVal) * 100;
+
+    if (planCompletionPct < 95) {
+      const richFood = allowedFoods
+        .filter(f => key in f.micros && (f.micros as any)[key] > 10)
+        .sort((a, b) => (b.micros as any)[key] - (a.micros as any)[key])[0] ||
+        VEGETARIAN_FOODS
+        .filter(f => key in f.micros && (f.micros as any)[key] > 10)
+        .sort((a, b) => (b.micros as any)[key] - (a.micros as any)[key])[0];
+
+      const label = HUMAN_MICRO_NAMES[key] || key;
+      if (richFood) {
+        planDeficiencies.push(
+          `Shortfall of ${label} (${Math.round(planCompletionPct)}% of target). Suggestion: Log ${richFood.servingSize} ${richFood.name} (+${(richFood.micros as any)[key]}% DV)`
+        );
+      } else {
+        planDeficiencies.push(
+          `Shortfall of ${label} (${Math.round(planCompletionPct)}% of target)`
+        );
+      }
+    }
+  }
+
+  return { meals, adjustments, planDeficiencies };
 }

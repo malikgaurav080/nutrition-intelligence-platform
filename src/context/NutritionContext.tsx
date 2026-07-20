@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { DailyLog, LoggedFood, FoodItem } from '../types/nutrition.types';
+import type { DailyLog, LoggedFood, SavedMealPlan } from '../types/nutrition.types';
 import { EMPTY_DAILY_LOG } from '../types/nutrition.types';
-import { VEGETARIAN_FOODS } from '../data/foodDatabase';
 import { useUser } from './UserContext';
 
 interface NutritionContextType {
@@ -13,6 +12,22 @@ interface NutritionContextType {
   logFood: (slot: LoggedFood['slot'], foodId: string, loggedQty: number) => Promise<boolean>;
   removeFood: (slot: LoggedFood['slot'], foodId: string) => Promise<boolean>;
   updateWater: (amountMl: number) => Promise<boolean>;
+  logBulkFoods: (meals: Omit<LoggedFood, 'userId'>[]) => Promise<boolean>;
+  
+  // Custom Diet plans
+  savedPlans: SavedMealPlan[];
+  activePlan: SavedMealPlan | null;
+  fetchMealPlans: () => Promise<void>;
+  saveMealPlan: (
+    name: string,
+    meals: any[],
+    planDeficiencies: string[],
+    adjustments: any[],
+    overwriteId?: string
+  ) => Promise<{ success: boolean; error?: string; existingPlans?: { id: string; name: string }[] }>;
+  setActiveMealPlan: (id: string) => Promise<boolean>;
+  deleteMealPlan: (id: string) => Promise<boolean>;
+  logSlotFromPlan: (slot: LoggedFood['slot'], items: any[]) => Promise<boolean>;
 }
 
 const NutritionContext = createContext<NutritionContextType | undefined>(undefined);
@@ -30,6 +45,10 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [todayLog, setTodayLog] = useState<DailyLog>(EMPTY_DAILY_LOG(activeDate));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Custom plans state
+  const [savedPlans, setSavedPlans] = useState<SavedMealPlan[]>([]);
+  const [activePlan, setActivePlan] = useState<SavedMealPlan | null>(null);
 
   // Fetch log from API
   const fetchLog = useCallback(async (dateStr: string) => {
@@ -63,10 +82,41 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [currentUser]);
 
-  // Load log on user auth or date changes
+  // Fetch Saved Plans from API
+  const fetchMealPlans = useCallback(async () => {
+    const token = sessionStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('/api/meal-plans', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSavedPlans(data);
+        const active = data.find((p: any) => p.isActive) || null;
+        setActivePlan(active);
+      }
+    } catch (err) {
+      console.error('Error fetching meal plans', err);
+    }
+  }, []);
+
+  // Load log & plans on date / user change
   useEffect(() => {
     fetchLog(activeDate);
   }, [activeDate, fetchLog]);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchMealPlans();
+    } else {
+      setSavedPlans([]);
+      setActivePlan(null);
+    }
+  }, [currentUser, fetchMealPlans]);
 
   const changeDate = async (dateStr: string) => {
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -78,54 +128,19 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const token = sessionStorage.getItem('token');
     if (!token) return false;
 
-    const food = VEGETARIAN_FOODS.find(f => f.id === foodId);
-    if (!food) return false;
-
-    // Multiply macros/micros by qty multiplier
-    const multiplyMacros = (m: FoodItem['macros'], q: number) => ({
-      calories: Math.round(m.calories * q),
-      protein: Math.round(m.protein * q * 10) / 10,
-      carbs: Math.round(m.carbs * q * 10) / 10,
-      fat: Math.round(m.fat * q * 10) / 10,
-      fiber: Math.round(m.fiber * q * 10) / 10,
-    });
-
-    const multiplyMicros = (m: FoodItem['micros'], q: number) => ({
-      vitA: Math.round(m.vitA * q * 10) / 10,
-      vitC: Math.round(m.vitC * q * 10) / 10,
-      vitD: Math.round(m.vitD * q * 10) / 10,
-      vitE: Math.round(m.vitE * q * 10) / 10,
-      vitB12: Math.round(m.vitB12 * q * 10) / 10,
-      calcium: Math.round(m.calcium * q * 10) / 10,
-      iron: Math.round(m.iron * q * 10) / 10,
-      zinc: Math.round(m.zinc * q * 10) / 10,
-      magnesium: Math.round(m.magnesium * q * 10) / 10,
-      potassium: Math.round(m.potassium * q * 10) / 10,
-      folate: Math.round(m.folate * q * 10) / 10,
-      omega3: Math.round(m.omega3 * q * 10) / 10,
-    });
-
     try {
-      const payload = {
-        date: activeDate,
-        slot,
-        foodId,
-        name: food.name,
-        servingSize: food.servingSize,
-        servingUnit: food.servingUnit,
-        baseQty: food.baseQty,
-        loggedQty,
-        macros: multiplyMacros(food.macros, loggedQty),
-        micros: multiplyMicros(food.micros, loggedQty),
-      };
-
       const response = await fetch('/api/logs/food', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          date: activeDate,
+          slot,
+          foodId,
+          loggedQty
+        })
       });
 
       if (response.ok) {
@@ -193,6 +208,157 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const logBulkFoods = async (meals: Omit<LoggedFood, 'userId'>[]) => {
+    const token = sessionStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+      const response = await fetch('/api/logs/bulk-food', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          date: activeDate,
+          meals
+        })
+      });
+
+      if (response.ok) {
+        const updatedLog = await response.json();
+        setTodayLog(updatedLog);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error logging bulk foods', err);
+      return false;
+    }
+  };
+
+  const saveMealPlan = async (
+    name: string,
+    meals: any[],
+    planDeficiencies: string[],
+    adjustments: any[],
+    overwriteId?: string
+  ) => {
+    const token = sessionStorage.getItem('token');
+    if (!token) return { success: false, error: 'Unauthorized' };
+
+    try {
+      const response = await fetch('/api/meal-plans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name, meals, planDeficiencies, adjustments, overwriteId })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSavedPlans(data);
+        const active = data.find((p: any) => p.isActive) || null;
+        setActivePlan(active);
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: data.message || 'Failed to save meal plan',
+          existingPlans: data.existingPlans
+        };
+      }
+    } catch (err) {
+      console.error('Error saving meal plan', err);
+      return { success: false, error: 'Server connection error' };
+    }
+  };
+
+  const setActiveMealPlan = async (id: string) => {
+    const token = sessionStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+      const response = await fetch(`/api/meal-plans/${id}/active`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSavedPlans(data);
+        const active = data.find((p: any) => p.isActive) || null;
+        setActivePlan(active);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error setting active plan', err);
+      return false;
+    }
+  };
+
+  const deleteMealPlan = async (id: string) => {
+    const token = sessionStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+      const response = await fetch(`/api/meal-plans/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSavedPlans(data);
+        const active = data.find((p: any) => p.isActive) || null;
+        setActivePlan(active);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error deleting meal plan', err);
+      return false;
+    }
+  };
+
+  const logSlotFromPlan = async (slot: LoggedFood['slot'], items: any[]) => {
+    const token = sessionStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+      const response = await fetch('/api/logs/bulk-slot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          date: activeDate,
+          slot,
+          meals: items
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTodayLog(data);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error logging slot from plan', err);
+      return false;
+    }
+  };
+
   return (
     <NutritionContext.Provider
       value={{
@@ -203,7 +369,15 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         changeDate,
         logFood,
         removeFood,
-        updateWater
+        updateWater,
+        logBulkFoods,
+        savedPlans,
+        activePlan,
+        fetchMealPlans,
+        saveMealPlan,
+        setActiveMealPlan,
+        deleteMealPlan,
+        logSlotFromPlan
       }}
     >
       {children}
