@@ -6,19 +6,28 @@
 **Status:** Approved for Development  
 **Platform:** Mobile-First Web Application (Progressive Web App)
 
+> 📚 **Documentation & Specifications Index**:
+> - 📄 **Personalised RDA Reference Table**: [docs/rda-reference.md](./docs/rda-reference.md)
+> - 💡 **Essential Nutrients & Health Guide**: [docs/essential-nutrients-guide.md](./docs/essential-nutrients-guide.md)
+> - 🥗 **52-Item Vegetarian Food Database**: [docs/foodDatabase.md](./docs/foodDatabase.md)
+> - 📱 **9-Screen UI Layout Specification**: [docs/ui-screens-spec.md](./docs/ui-screens-spec.md)
+> - 🎨 **Design System & Theme Guidelines**: [docs/design-system.md](./docs/design-system.md)
+> - 📋 **Active Development Task Tracker**: [task.md](./task.md)
+
 ---
 
 ## 1. 🎯 Product Vision
 
-Build a **Nutrition Intelligence Platform** that helps users achieve their health goals through **scientifically optimised nutrition**, not generic diet plans.
+Build a **Nutrition Intelligence & Food Logging Platform** that helps users achieve their health goals through **scientifically optimised nutrition** and **seamless daily food tracking**.
 
 Unlike traditional calorie-counter apps, this platform:
+- Enables **effortless food logging** — log foods directly from recommended meal plans slot-by-slot or search custom items
 - Optimises for **complete nutrition** — macros + micros + health priorities simultaneously
 - Generates **fully personalised meal plans** based on real food users eat
 - Presents **meaningful health insights** (Hair Health 82%, Brain Health 69%) instead of raw nutrient numbers
-- Acts as the **brain** behind every food recommendation
+- Acts as the **brain** behind every food recommendation and logged meal
 
-**Phase 1 Scope:** Core Nutrition Engine (MVP) — Vegetarian-only. Non-vegetarian support in Phase 2.
+**Phase 1 Scope:** Core Nutrition Engine & Logging System (MVP) — Vegetarian-only. Non-vegetarian support in Phase 2.
 
 ---
 
@@ -207,113 +216,7 @@ Water_ml = Weight_kg × 35
 
 RDAs are looked up by Age + Gender + Pregnancy/Breastfeeding status.
 
-| Nutrient | Unit | Age | Male | Female | Pregnant | Breastfeeding |
-|---|---|---|---|---|---|---|
-| Vitamin A | µg | 1–3 | 300 | 300 | — | — |
-| | | 4–8 | 400 | 400 | — | — |
-| | | 9–13 | 600 | 600 | — | — |
-| | | 14–18 | 900 | 700 | 750 | 1200 |
-| | | 19+ | 900 | 700 | 770 | 1300 |
-| Vitamin C | mg | 1–3 | 15 | 15 | — | — |
-| | | 4–8 | 25 | 25 | — | — |
-| | | 9–13 | 45 | 45 | — | — |
-| | | 14–18 | 75 | 65 | 80 | 115 |
-| | | 19+ | 90 | 75 | 85 | 120 |
-| Vitamin D | µg | 1–70 | 15 | 15 | 15 | 15 |
-| | | 71+ | 20 | 20 | — | — |
-| Vitamin E | mg | 1–3 | 6 | 6 | — | — |
-| | | 4–8 | 7 | 7 | — | — |
-| | | 9–13 | 11 | 11 | — | — |
-| | | 14+ | 15 | 15 | 15 | 19 |
-| Vitamin K | µg | 1–3 | 30 | 30 | — | — |
-| | | 4–8 | 55 | 55 | — | — |
-| | | 9–13 | 60 | 60 | — | — |
-| | | 14–18 | 75 | 75 | 75 | 75 |
-| | | 19+ | 120 | 90 | 90 | 90 |
-| Vitamin B1 | mg | 1–3 | 0.5 | 0.5 | — | — |
-| | | 4–8 | 0.6 | 0.6 | — | — |
-| | | 9–13 | 0.9 | 0.9 | — | — |
-| | | 14–18 | 1.2 | 1.0 | 1.4 | 1.4 |
-| | | 19+ | 1.2 | 1.1 | 1.4 | 1.4 |
-| Vitamin B2 | mg | 1–3 | 0.5 | 0.5 | — | — |
-| | | 4–8 | 0.6 | 0.6 | — | — |
-| | | 9–13 | 0.9 | 0.9 | — | — |
-| | | 14–18 | 1.3 | 1.0 | 1.4 | 1.6 |
-| | | 19+ | 1.3 | 1.1 | 1.4 | 1.6 |
-| Vitamin B3 | mg | 1–3 | 6 | 6 | — | — |
-| | | 4–8 | 8 | 8 | — | — |
-| | | 9–13 | 12 | 12 | — | — |
-| | | 14–18 | 16 | 14 | 18 | 17 |
-| | | 19+ | 16 | 14 | 18 | 17 |
-| Vitamin B5 | mg | 1–3 | 2 | 2 | — | — |
-| | | 4–8 | 3 | 3 | — | — |
-| | | 9–13 | 4 | 4 | — | — |
-| | | 14+ | 5 | 5 | 6 | 7 |
-| Vitamin B6 | mg | 1–3 | 0.5 | 0.5 | — | — |
-| | | 4–8 | 0.6 | 0.6 | — | — |
-| | | 9–13 | 1.0 | 1.0 | — | — |
-| | | 14–18 | 1.3 | 1.2 | 1.9 | 2.0 |
-| | | 19–50 | 1.3 | 1.3 | 1.9 | 2.0 |
-| | | 51+ | 1.7 | 1.5 | — | — |
-| Biotin (B7) | µg | 1–3 | 8 | 8 | — | — |
-| | | 4–8 | 12 | 12 | — | — |
-| | | 9–13 | 20 | 20 | — | — |
-| | | 14–18 | 25 | 25 | 30 | 35 |
-| | | 19+ | 30 | 30 | 30 | 35 |
-| Folate (B9) | µg | 1–3 | 150 | 150 | — | — |
-| | | 4–8 | 200 | 200 | — | — |
-| | | 9–13 | 300 | 300 | — | — |
-| | | 14+ | 400 | 400 | 600 | 500 |
-| Vitamin B12 | µg | 1–3 | 0.9 | 0.9 | — | — |
-| | | 4–8 | 1.2 | 1.2 | — | — |
-| | | 9–13 | 1.8 | 1.8 | — | — |
-| | | 14+ | 2.4 | 2.4 | 2.6 | 2.8 |
-| Calcium | mg | 1–3 | 700 | 700 | — | — |
-| | | 4–8 | 1000 | 1000 | — | — |
-| | | 9–18 | 1300 | 1300 | 1300 | 1300 |
-| | | 19–50 | 1000 | 1000 | 1000 | 1000 |
-| | | 51–70 | 1000 | 1200 | — | — |
-| | | 71+ | 1200 | 1200 | — | — |
-| Iron | mg | 1–3 | 7 | 7 | — | — |
-| | | 4–8 | 10 | 10 | — | — |
-| | | 9–13 | 8 | 8 | — | — |
-| | | 14–18 | 11 | 15 | 27 | 10 |
-| | | 19–50 | 8 | 18 | 27 | 9 |
-| | | 51+ | 8 | 8 | — | — |
-| Magnesium | mg | 1–3 | 80 | 80 | — | — |
-| | | 4–8 | 130 | 130 | — | — |
-| | | 9–13 | 240 | 240 | — | — |
-| | | 14–18 | 410 | 360 | 400 | 360 |
-| | | 19–30 | 400 | 310 | 350 | 310 |
-| | | 31+ | 420 | 320 | 360 | 320 |
-| Potassium | mg | 1–3 | 2000 | 2000 | — | — |
-| | | 4–8 | 2300 | 2300 | — | — |
-| | | 9–13 | 2500 | 2300 | — | — |
-| | | 14+ | 3400 | 2600 | 2900 | 2800 |
-| Zinc | mg | 1–3 | 3 | 3 | — | — |
-| | | 4–8 | 5 | 5 | — | — |
-| | | 9–13 | 8 | 8 | — | — |
-| | | 14–18 | 11 | 9 | 12 | 13 |
-| | | 19+ | 11 | 8 | 11 | 12 |
-| Phosphorus | mg | 1–3 | 460 | 460 | — | — |
-| | | 4–8 | 500 | 500 | — | — |
-| | | 9–18 | 1250 | 1250 | 1250 | 1250 |
-| | | 19+ | 700 | 700 | 700 | 700 |
-| Selenium | µg | 1–3 | 20 | 20 | — | — |
-| | | 4–8 | 30 | 30 | — | — |
-| | | 9–13 | 40 | 40 | — | — |
-| | | 14+ | 55 | 55 | 60 | 70 |
-| Iodine | µg | 1–3 | 90 | 90 | — | — |
-| | | 4–8 | 90 | 90 | — | — |
-| | | 9–13 | 120 | 120 | — | — |
-| | | 14+ | 150 | 150 | 220 | 290 |
-| Omega-3 | g | 1–3 | 0.7 | 0.7 | — | — |
-| | | 4–8 | 0.9 | 0.9 | — | — |
-| | | 9–13 | 1.2 | 1.0 | — | — |
-| | | 14–18 | 1.6 | 1.1 | 1.4 | 1.3 |
-| | | 19+ | 1.6 | 1.1 | 1.4 | 1.3 |
-
-*Source: U.S. National Academies of Sciences — Dietary Reference Intakes (DRIs)*
+> 📄 **Reference Table:** For complete nutrient values broken down by age, gender, pregnancy, and breastfeeding status, see [docs/rda-reference.md](./docs/rda-reference.md).
 
 ---
 
@@ -364,6 +267,8 @@ Progress Bar:  ████████░░  69%
 ---
 
 ## 5. 🏥 Health System Scoring
+
+> 💡 **Essential Nutrients Reference Guide:** Complete nutrient functions, deficiency symptoms, daily food source checklists, and health impact guides are documented in [docs/essential-nutrients-guide.md](./docs/essential-nutrients-guide.md).
 
 ### 5.1 Nutrient-to-Health System Mapping
 
@@ -444,35 +349,39 @@ Where:
 Overall_Score = Average of all selected Health System Scores
 ```
 
+### 5.4 Top 14 Core Essential Nutrients
+The engine prioritizes tracking, recommendations, and deficit alerts for 14 core high-impact nutrients:
+1. ⭐⭐⭐ **Protein**
+2. ⭐⭐⭐ **Fiber**
+3. ⭐⭐⭐ **Vitamin D**
+4. ⭐⭐⭐ **Vitamin B12**
+5. ⭐⭐⭐ **Iron**
+6. ⭐⭐⭐ **Calcium**
+7. ⭐⭐⭐ **Magnesium**
+8. ⭐⭐⭐ **Potassium**
+9. ⭐⭐⭐ **Zinc**
+10. ⭐⭐⭐ **Vitamin C**
+11. ⭐⭐⭐ **Vitamin A**
+12. ⭐⭐⭐ **Folate (B9)**
+13. ⭐⭐⭐ **Iodine**
+14. ⭐⭐⭐ **Omega-3**
+
 ---
 
-## 6. 📱 Dashboard Screens
+## 6. 📱 Dashboard & Screen Layouts
 
-### 6.1 Daily Macro Dashboard
+> 📱 **Full Visual & Screen Specification:** Detailed section-by-section breakdown, component hierarchy, visual layout, and interactive states for all 9 app screens are documented in [docs/ui-screens-spec.md](./docs/ui-screens-spec.md).
 
-| Widget | Data Points |
-|---|---|
-| Calorie Ring | Target kcal / Consumed kcal / Remaining kcal / Maintenance kcal (TDEE baseline) |
-| Protein Bar | Target g / Consumed g / Remaining g / % |
-| Carbohydrates Bar | Target g / Consumed g / Remaining g / % |
-| Fat Bar | Target g / Consumed g / Remaining g / % |
-| Fiber Bar | Target g / Consumed g / Remaining g / % |
-| Water Tracker | Target ml / Logged ml / Glass count |
+### 6.1 Daily Macro Dashboard (`/`)
+- **Header**: Greeting (`"Good Morning Gaurav 👋"`), Hamburger menu, Notification bell with badge.
+- **Hero Nutrition Score Card**: Dark Emerald Green card with large numeric score (`92 Excellent`), animated SVG radial gauge, and trend (`↑ 12% vs yesterday`).
+- **Today's Progress (2x3 Grid)**: Calories, Protein, Carbs, Fat, Fiber, Water cards with absolute numbers, targets, percentages, and progress bars.
+- **Health System Scores Row**: Horizontal badges for Brain, Immunity, Heart, Bones, Muscle scores.
 
-### 6.2 Micronutrient Dashboard (per selected health priority)
-
-| Widget | Data Points |
-|---|---|
-| Nutrient Row | Name / Daily Target (absolute) / Consumed (absolute + %) / Remaining / Progress bar |
-| Priority Badge | ⭐⭐⭐ or ⭐⭐ |
-| Health Score Card | e.g. "💇 Hair Health — 65%" with animated ring |
-
-### 6.3 Health Status Screen (/health)
-
-- Dedicated Status tab page displaying the overall scoring and priority card systems
-- Animated ring cards per selected priority
-- Overall Nutrition Score prominently shown (Green ≥80%, Indigo 60–79%, Amber 40–59%, Red <40%)
-- Tap → detailed nutrient breakdown in Insights tab
+### 6.2 Health Status Screen (`/health`)
+- Dedicated status page with category filter tabs (`All`, `Needs Attention`, `Strong`).
+- 10 progress rows for health priorities (Brain, Immunity, Heart, Bones, Muscle, Skin, Hair, Eye, Blood, Thyroid) with color-coded bars.
+- Overall Health Score card with animated circular gauge.
 
 ---
 
@@ -481,15 +390,15 @@ Overall_Score = Average of all selected Health System Scores
 ### 7.1 Food Database Summary
 
 Source: `foodDatabase.md` / `foodDatabase.ts`
-Total: 44 vegetarian food items
+Total: 52 vegetarian superfood items
 
 | Category | Count |
 |---|---|
 | proteins_dairy | 9 |
-| grains_legumes | 11 |
-| seeds_nuts | 9 |
+| grains_legumes | 14 |
+| seeds_nuts | 10 |
 | vegetables | 10 |
-| fruits | 7 |
+| fruits | 9 |
 
 ### 7.2 FoodItem TypeScript Interface
 
@@ -585,147 +494,44 @@ Users can dynamically customize the recommendations:
 
 ## 8. 🌐 App Screens & Navigation
 
-### Bottom Navigation Tabs
+> 📱 **Full UI Layout Spec:** See [docs/ui-screens-spec.md](./docs/ui-screens-spec.md) for full visual layouts & section details.
 
-| Tab | Screen |
-|---|---|
-| 🏠 Home | Daily Dashboard |
-| 🥗 Meals | Meal Planner & Food Logger |
-| 📊 Insights | Micronutrient & Health Scores |
-| 👤 Profile | Settings & Profile |
+### Bottom Navigation Bar (5 Floating Glass Tabs)
 
-### Screen List
+| Tab | Screen / Path | Key Role |
+|---|---|---|
+| 🏠 Home | Main Dashboard (`/`) | Health command center, score ring, 2x3 progress grid |
+| 🥗 Meals | Today's Meals (`/meals`) | Slot timeline, active meal card, AI advice |
+| ➕ Action (Center) | Add Meal / Food Logger (`/log-food`) | Quick food search & slot-by-slot logging |
+| 📈 Progress | Health Systems (`/health`) & Insights (`/insights`) | Health score bars, trend graphs, micro details |
+| 👤 Profile | Profile & Settings (`/profile`) | User profile card, membership, AI feature navigation |
 
-| Screen | Key Features |
-|---|---|
-| Splash / Landing | App intro, Sign Up / Log In CTA |
-| Sign Up (6 steps) | Account → Profile → Goal → Priorities → Diet → Restrictions |
-| Log In | Email + password |
-| Dashboard | Calorie ring, macro bars, health score cards, water tracker |
-| Meal Planner | Today's meals, Add Food, Generate button |
-| Food Logger | Search food, serving selector, log to slot |
-| Nutrient Insights | Per-priority cards with absolute + %DV |
-| Health Scores | Animated rings per priority + overall score |
-| Profile & Settings | Edit profile, change goals and priorities |
+### 9 Core Screens Summary
+
+| Screen | Route / View | Key Features & Layout |
+|---|---|---|
+| **1. Main Dashboard** | `/` | Nutrition Score 92 ring, 2x3 progress grid, health system chips |
+| **2. Today's Meals** | `/meals` | Meal schedule tabs, active meal card with macros, vertical timeline |
+| **3. Health Systems** | `/health` | 10 priority bars (Brain, Hair, Skin, etc.), filter tabs (All/Attention/Strong) |
+| **4. Nutrition Targets** | `/targets` | Macro radial donut chart (2,200 kcal), fiber & water recommendation cards |
+| **5. Micronutrient Detail** | `/micronutrients` | Vitamin & mineral progress bars with target fractions (`850 / 900 µg`) |
+| **6. Generated Meal Plan** | `/meal-plan` | Plan banner summary, food thumbnail carousel, slot cards, Generate CTA |
+| **7. Add Meal / Logger** | `/log-food` | Food search bar, category chips (`All`/`My Foods`/`Recipes`/`Scan`), quick add list |
+| **8. Insights & Trends** | `/insights` | Timeframe toggle (`Today`/`Weekly`/`Monthly`), weekly trend bar chart, top foods |
+| **9. Profile & Settings** | `/profile` | User avatar card (`Gaurav Malik`), Gold membership badge, AI feature list |
 
 ---
 
 ## 9. 🎨 Design System
 
-### Design Philosophy
-The application is a **Nutrition Intelligence Platform**, not a food logging app. Every screen should help users understand where they currently stand, what they should do next, and why that recommendation matters. The interface should prioritize clarity, personalization, scientific credibility, and actionable insights over excessive visual effects. The application should feel closer to Apple Health, WHOOP, Oura, Levels, Linear, and Stripe Dashboard rather than a traditional calorie tracker.
+> 🎨 **Design System Specification:** Complete design principles, visual language, theme tokens, motion guidelines, component structure, and typography rules are documented in [docs/design-system.md](./docs/design-system.md).
 
-### Overall Design Principles
-
-#### Mobile First
-- Design mobile-first with a minimum width of **375px**.
-- Support responsive layouts for 375px, 390px, 414px, and 430px.
-- Desktop should feel like an optimized extension of the mobile experience rather than a separate design.
-
-#### Premium Visual Language
-- The UI should look modern, elegant, and trustworthy.
-- Avoid a "startup template" appearance.
-- Focus on large whitespace, clear visual hierarchy, soft rounded corners, premium typography, elegant shadows, subtle gradients, minimal borders, and clean card layouts.
-- The design should communicate confidence and simplicity.
-
-#### Theme System
-- Support Dark Theme (Default), Light Theme, and System Theme.
-- Dark mode should feel luxurious with deep neutral backgrounds rather than pure black.
-- Example palette:
-  - Background: `#0B0F14`
-  - Surface: `#141A22`
-  - Card: `#1A222D`
-  - Divider: `rgba(255,255,255,0.06)`
-- Use glass effects sparingly only where they improve focus. Avoid making every card glassmorphic.
-
-#### Glassmorphism Guidelines
-- Use frosted glass only for: floating navigation, bottom sheets, modal dialogs, floating action buttons, quick actions.
-- Avoid glass backgrounds for every card because readability is more important than visual effects.
-
-#### Dashboard First Design
-- The home screen should function as a personalized health command center.
-- The first screen should immediately answer:
-  - How healthy am I today?
-  - What is left to complete?
-  - What should I eat next?
-  - Which nutrients require attention?
-  - How close am I to today's goals?
-- Prioritize meaningful insights instead of displaying large amounts of raw data.
-
-#### Information Hierarchy
-Every screen should follow this hierarchy:
-1. Overall Nutrition Score
-2. Today's Progress
-3. Health System Scores
-4. Remaining Nutrition Targets
-5. Recommended Next Meal
-6. Daily Meal Timeline
-7. Insights & Suggestions
-Users should understand their health status within 5 seconds of opening the app.
-
-#### Dashboard Components
-- Design premium cards for: Overall Nutrition Score, Daily Calories, Protein Progress, Carbohydrate Progress, Fat Progress, Fiber Progress, Water Intake, Health System Scores, Meal Timeline, Recommended Meal, Deficiency Alerts, Nutrition Insights.
-- Use circular progress indicators, animated rings, and clean progress bars instead of tables.
-
-#### Data Visualization
-- The application is data-heavy. Prioritize beautiful visualizations: circular progress rings, radial health gauges, animated progress bars, weekly trend charts, nutrition completion graphs, meal timelines, achievement indicators.
-- Avoid overwhelming the user with spreadsheets or dense tables.
-
-#### Motion Design
-- Animations should communicate state changes rather than exist for decoration.
-- Examples: Dashboard cards fade and slide in sequentially, progress rings animate from 0% to the current value, progress bars fill smoothly, meal logging updates numbers in real time, health scores animate after calculations, recommendation cards transition elegantly.
-- Animation duration: 150–300ms with smooth easing throughout.
-- Avoid flashy or distracting animations.
-
-#### Typography
-- Headings: Inter Bold
-- Body: Inter Regular
-- Numbers: Tabular figures for consistency
-- Maintain a clear visual hierarchy through font weight and spacing instead of excessive font sizes.
-
-#### Color System
-- Use a restrained color palette.
-  - Primary: Emerald Green
-  - Secondary: Electric Blue
-  - Warning: Amber
-  - Error: Red
-  - Success: Green
-  - Neutral: Slate Gray
-- Never rely solely on color to communicate status. Always combine icons, labels, and percentages.
-
-#### Card Design
-- Cards should have: large padding, soft shadows, rounded corners (16–20px), minimal borders, consistent spacing.
-- Cards should feel lightweight and premium.
-
-#### Navigation
-- Use a clean bottom navigation with five tabs in the order: Home, Insights, Health, Meals, Profile.
-- Floating action button: Log Meal.
-- The navigation should always remain accessible.
-
-#### User Experience
-- Every screen should answer one question: "What is the next best action the user should take?"
-- Examples:
-  - Instead of "Iron: 58%", Display: "Iron is below today's target. Adding 20g Pumpkin Seeds will increase completion to 86%."
-  - Instead of "Protein: 102g", Display: "Only 28g protein remaining. Recommended: Greek Yogurt + Tofu Bowl."
-
-#### Accessibility
-- Support: high contrast, dynamic text scaling, screen readers, large touch targets, color-blind friendly charts.
-- Never rely only on color.
-
-#### Empty States
-- Every empty state should guide the user.
-- Example: "No meals logged. Start with breakfast to begin tracking today's nutrition."
-- Avoid blank screens.
-
-#### Premium Feel
-- The application should feel: Intelligent, Calm, Scientific, Premium, Personalized, Trustworthy, Modern, Minimal.
-- Avoid clutter, unnecessary icons, excessive gradients, or overly decorative elements.
-- Every element should have a clear purpose.
-
-#### Final Design Goal
-- Do not design this application like a calorie tracker.
-- Design it as a **Nutrition Intelligence Operating System** that helps users make better nutritional decisions through personalized insights, scientific optimization, and an elegant premium experience.
-- Every screen should make users feel that the platform understands their health and proactively guides them toward achieving their goals.
+### Design Summary
+- **Visual Style:** Enterprise Minimalist / Premium Health OS (inspired by Apple Health, WHOOP, Linear, Oura)
+- **Theme:** Dark Mode (default background `#0B0F14`), Light Mode, System Mode
+- **Layout:** Mobile-First (min width 375px) responsive layout
+- **Typography:** Inter Bold (headings), Inter Regular (body), Tabular figures for numbers
+- **Palette:** Emerald Green (Primary), Electric Blue (Secondary), Slate Gray (Neutral), Amber (Warning), Red (Error)
 
 ---
 
@@ -749,7 +555,7 @@ Users should understand their health status within 5 seconds of opening the app.
 
 | File | Purpose |
 |---|---|
-| src/data/foodDatabase.ts | 44-item food array |
+| src/data/foodDatabase.ts | 52-item food array |
 | src/data/rdaTable.ts | RDA lookup by age + gender |
 | src/data/healthSystems.ts | Nutrient-to-system mapping + weights |
 | src/engine/calculateTargets.ts | BMR, TDEE, macro targets |
@@ -814,49 +620,7 @@ Dashboard (live updates)
 
 ## 12. ✅ Phase 1 Development Checklist
 
-### Foundation
-- [ ] Project setup (Vite + React + TypeScript)
-- [ ] Design system (CSS tokens, typography, colors)
-- [ ] Routing setup (React Router v6)
-
-### Authentication
-- [ ] Sign Up Step 1 — Account creation
-- [ ] Sign Up Step 2 — Basic profile
-- [ ] Sign Up Step 3 — Goal selection
-- [ ] Sign Up Step 4 — Health priorities (max 5)
-- [ ] Sign Up Step 5 — Diet type
-- [ ] Sign Up Step 6 — Dietary restrictions
-- [ ] Log In screen
-- [ ] Session persistence (JWT/Cookie + MongoDB session)
-
-### Nutrition Engine
-- [ ] BMR + TDEE calculator
-- [ ] Macro target calculator
-- [ ] RDA lookup table
-- [ ] %DV → absolute micro converter
-- [ ] Completion% calculator (capped at 100%)
-- [ ] Weighted health score calculator
-- [ ] Overall nutrition score
-
-### Dashboards
-- [ ] Macro dashboard (calorie ring + bars)
-- [ ] Water tracker
-- [ ] Health system score cards
-- [ ] Micronutrient detail view per health system
-- [ ] Overall nutrition score
-
-### Meal Features
-- [ ] Food logger (search + serving size)
-- [ ] Daily meal log (4 slots)
-- [ ] Rule-based meal generator
-- [ ] Smart adjustment recommendations
-
-### UX Polish
-- [ ] Splash / loading screen
-- [ ] Animated progress rings and bars
-- [ ] Responsive mobile-first layout
-- [ ] Empty states + onboarding nudges
-- [ ] Color-coded health score indicators
+> 📋 **Task Tracker:** Active development progress and execution checklist are tracked in [task.md](./task.md).
 
 ---
 

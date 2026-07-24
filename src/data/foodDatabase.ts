@@ -204,6 +204,36 @@ export const VEGETARIAN_FOODS: FoodItem[] = [
     macros: { calories: 84, protein: 5.4, carbs: 15.6, fat: 0.4, fiber: 5.5 },
     micros: { vitA: 10, vitC: 24, vitD: 0, vitE: 1, vitB12: 0, calcium: 3, iron: 8, zinc: 7, magnesium: 8, potassium: 8, folate: 24, omega3: 0.0 }
   },
+  {
+    id: "soybeans",
+    name: "Soybeans (Whole, Boiled)",
+    category: "grains_legumes",
+    servingSize: "100g cooked",
+    servingUnit: "g",
+    baseQty: 100,
+    macros: { calories: 173, protein: 16.6, carbs: 9.9, fat: 9.0, fiber: 6.0 },
+    micros: { vitA: 0, vitC: 2, vitD: 0, vitE: 3, vitB12: 0, calcium: 10, iron: 28, zinc: 12, magnesium: 21, potassium: 11, folate: 14, omega3: 0.6 }
+  },
+  {
+    id: "whole_wheat_roti",
+    name: "Whole Wheat Roti (Chapati)",
+    category: "grains_legumes",
+    servingSize: "1 roti (40g)",
+    servingUnit: "piece",
+    baseQty: 1,
+    macros: { calories: 120, protein: 3.5, carbs: 22.0, fat: 1.5, fiber: 3.0 },
+    micros: { vitA: 0, vitC: 0, vitD: 0, vitE: 1, vitB12: 0, calcium: 2, iron: 8, zinc: 6, magnesium: 10, potassium: 3, folate: 8, omega3: 0.0 }
+  },
+  {
+    id: "fortified_cereals",
+    name: "Fortified Whole Grain Cereal",
+    category: "grains_legumes",
+    servingSize: "40g",
+    servingUnit: "g",
+    baseQty: 40,
+    macros: { calories: 150, protein: 4.0, carbs: 32.0, fat: 1.2, fiber: 4.5 },
+    micros: { vitA: 25, vitC: 25, vitD: 25, vitE: 25, vitB12: 100, calcium: 15, iron: 100, zinc: 25, magnesium: 12, potassium: 4, folate: 100, omega3: 0.0 }
+  },
 
   // --- Seeds & Nuts ---
   {
@@ -295,6 +325,16 @@ export const VEGETARIAN_FOODS: FoodItem[] = [
     baseQty: 30,
     macros: { calories: 170, protein: 10.0, carbs: 3.0, fat: 15.0, fiber: 1.2 },
     micros: { vitA: 0, vitC: 0, vitD: 0, vitE: 2, vitB12: 0, calcium: 2, iron: 14, zinc: 20, magnesium: 45, potassium: 8, folate: 3, omega3: 2.5 }
+  },
+  {
+    id: "sesame_seeds",
+    name: "Sesame Seeds (Til)",
+    category: "seeds_nuts",
+    servingSize: "30g",
+    servingUnit: "g",
+    baseQty: 30,
+    macros: { calories: 172, protein: 5.3, carbs: 7.0, fat: 14.9, fiber: 3.5 },
+    micros: { vitA: 0, vitC: 0, vitD: 0, vitE: 1, vitB12: 0, calcium: 29, iron: 24, zinc: 21, magnesium: 25, potassium: 4, folate: 7, omega3: 0.1 }
   },
 
   // --- Vegetables ---
@@ -469,5 +509,35 @@ export const VEGETARIAN_FOODS: FoodItem[] = [
     baseQty: 150,
     macros: { calories: 60, protein: 0.8, carbs: 15.0, fat: 0.4, fiber: 2.5 },
     micros: { vitA: 15, vitC: 100, vitD: 0, vitE: 2, vitB12: 0, calcium: 3, iron: 1, zinc: 1, magnesium: 4, potassium: 5, folate: 10, omega3: 0.0 }
+  },
+  {
+    id: "amla",
+    name: "Amla (Indian Gooseberry)",
+    category: "fruits",
+    servingSize: "50g",
+    servingUnit: "g",
+    baseQty: 50,
+    macros: { calories: 22, protein: 0.4, carbs: 5.0, fat: 0.3, fiber: 2.2 },
+    micros: { vitA: 3, vitC: 330, vitD: 0, vitE: 1, vitB12: 0, calcium: 2, iron: 4, zinc: 1, magnesium: 2, potassium: 4, folate: 2, omega3: 0.0 }
+  },
+  {
+    id: "guava",
+    name: "Guava",
+    category: "fruits",
+    servingSize: "1 medium (100g)",
+    servingUnit: "g",
+    baseQty: 100,
+    macros: { calories: 68, protein: 2.6, carbs: 14.3, fat: 1.0, fiber: 5.4 },
+    micros: { vitA: 12, vitC: 250, vitD: 0, vitE: 4, vitB12: 0, calcium: 2, iron: 2, zinc: 2, magnesium: 5, potassium: 9, folate: 12, omega3: 0.1 }
+  },
+  {
+    id: "coconut_water",
+    name: "Coconut Water",
+    category: "fruits",
+    servingSize: "250ml",
+    servingUnit: "ml",
+    baseQty: 250,
+    macros: { calories: 45, protein: 1.7, carbs: 9.0, fat: 0.5, fiber: 2.6 },
+    micros: { vitA: 0, vitC: 10, vitD: 0, vitE: 0, vitB12: 0, calcium: 4, iron: 2, zinc: 1, magnesium: 14, potassium: 13, folate: 2, omega3: 0.0 }
   }
 ];
