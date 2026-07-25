@@ -105,7 +105,7 @@ This document breaks down the exact layout, component architecture, visual eleme
 - **Header**: Title `"Meal Plan"` (Clean header without back arrow or filter button)
 - **Unified Meal Plan Banner** (Single merged dark emerald gradient card `#064E3B` → `#065F46`):
   - **Header Row**: Active status badge (`🌟 Active Plan` with green dot indicator) and `🔄 Switch Plan` / `✕ Close` pill toggle button
-  - **Plan Metrics**: Active Plan Name (`Plan 1`), subtitle (`High Protein Plan`), and total calories & protein (`1,850 kcal · 120g Protein`)
+  - **Plan Metrics**: Active Plan Name (`Plan 1`), subtitle (`High Protein Plan`), and total macros (`1,850 kcal · 120g P · 185g C · 55g F`)
   - **Integrated Selector Drawer** (expanded inside the card when `Switch Plan` is tapped):
     - Subheader: `"Select a Meal Plan:"`
     - List of saved plan options (`Plan 1`, `Plan 2`, `Plan 3`) with calorie/protein stats and active badges / `Set Active` action buttons

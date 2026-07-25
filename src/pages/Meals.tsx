@@ -62,6 +62,24 @@ export default function MealPlan() {
   const totalPlanProtein = displayPlan
     ? displayPlan.meals.reduce((s, m) => s + m.totalProtein, 0)
     : 0;
+  const totalPlanCarbs = displayPlan
+    ? displayPlan.meals.reduce((s, m) => {
+        const carbs = m.items.reduce((itSum: number, it: any) => {
+          const macros = it.food ? it.food.macros : (it.macros ?? {});
+          return itSum + (macros.carbs_g ?? macros.carbs ?? 0) * (it.loggedQty ?? 1);
+        }, 0);
+        return s + carbs;
+      }, 0)
+    : 0;
+  const totalPlanFat = displayPlan
+    ? displayPlan.meals.reduce((s, m) => {
+        const fat = m.items.reduce((itSum: number, it: any) => {
+          const macros = it.food ? it.food.macros : (it.macros ?? {});
+          return itSum + (macros.fat_g ?? macros.fat ?? 0) * (it.loggedQty ?? 1);
+        }, 0);
+        return s + fat;
+      }, 0)
+    : 0;
 
   return (
     <div className="app-container">
@@ -120,7 +138,7 @@ export default function MealPlan() {
             {planName}
           </h2>
           <p style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.85)', margin: 0 }}>
-            High Protein Plan · {Math.round(totalPlanCalories)} kcal · {Math.round(totalPlanProtein)}g Protein
+            High Protein Plan · {Math.round(totalPlanCalories)} kcal · {Math.round(totalPlanProtein)}g P · {Math.round(totalPlanCarbs)}g C · {Math.round(totalPlanFat)}g F
           </p>
 
           {/* Integrated Selector inside the same banner */}
@@ -143,6 +161,14 @@ export default function MealPlan() {
                 const isPlanActive = plan.isActive || currentActivePlan?._id === plan._id;
                 const planCals = plan.meals.reduce((s: number, m: any) => s + m.totalCalories, 0);
                 const planProtein = plan.meals.reduce((s: number, m: any) => s + m.totalProtein, 0);
+                const planCarbs = plan.meals.reduce((s: number, m: any) => s + m.items.reduce((itSum: number, it: any) => {
+                  const macros = it.food ? it.food.macros : (it.macros ?? {});
+                  return itSum + (macros.carbs_g ?? macros.carbs ?? 0) * (it.loggedQty ?? 1);
+                }, 0), 0);
+                const planFat = plan.meals.reduce((s: number, m: any) => s + m.items.reduce((itSum: number, it: any) => {
+                  const macros = it.food ? it.food.macros : (it.macros ?? {});
+                  return itSum + (macros.fat_g ?? macros.fat ?? 0) * (it.loggedQty ?? 1);
+                }, 0), 0);
 
                 return (
                   <div
@@ -167,7 +193,7 @@ export default function MealPlan() {
                         {plan.name} {isSelected ? '(Viewing)' : ''}
                       </p>
                       <p style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.75)', margin: '2px 0 0 0' }}>
-                        {Math.round(planCals)} kcal · {Math.round(planProtein)}g protein
+                        {Math.round(planCals)} kcal · {Math.round(planProtein)}g P · {Math.round(planCarbs)}g C · {Math.round(planFat)}g F
                       </p>
                     </div>
 

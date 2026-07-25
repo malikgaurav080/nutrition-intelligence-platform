@@ -116,6 +116,18 @@ export default function GeneratePlan() {
   const totalProtein = recommendations
     ? recommendations.meals.reduce((s, m) => s + m.totalProtein, 0)
     : 0;
+  const totalCarbs = recommendations
+    ? recommendations.meals.reduce((s, m) => s + m.items.reduce((itSum: number, it: any) => {
+        const macros = it.food ? it.food.macros : (it.macros ?? {});
+        return itSum + (macros.carbs_g ?? macros.carbs ?? 0) * (it.loggedQty ?? 1);
+      }, 0), 0)
+    : 0;
+  const totalFat = recommendations
+    ? recommendations.meals.reduce((s, m) => s + m.items.reduce((itSum: number, it: any) => {
+        const macros = it.food ? it.food.macros : (it.macros ?? {});
+        return itSum + (macros.fat_g ?? macros.fat ?? 0) * (it.loggedQty ?? 1);
+      }, 0), 0)
+    : 0;
 
   const handleOpenSaveModal = () => {
     if (!recommendations) return;
@@ -257,7 +269,7 @@ export default function GeneratePlan() {
               Generated Meal Plan
             </h2>
             <p style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.85)', margin: 0 }}>
-              High Protein Plan · {Math.round(totalCalories)} kcal · {Math.round(totalProtein)}g Protein
+              High Protein Plan · {Math.round(totalCalories)} kcal · {Math.round(totalProtein)}g P · {Math.round(totalCarbs)}g C · {Math.round(totalFat)}g F
             </p>
           </div>
         )}

@@ -472,22 +472,25 @@ interface FoodItem {
 
 ### 7.6 Custom Recommendation Actions & Deficit Audits
 
-#### 1. Custom Diet/Meal Plans (MongoDB Stored Plans)
-The database stores up to 3 custom diet/meal plans per user in a separate collection (`MealPlan`). Users can switch between these 3 stored plans on the UI and toggle one as the "Active Meal Plan". The interface will display the active plan's configurations and suggest: "You can create up to 3 meal plans and switch here."
+#### 1. Custom Diet/Meal Plans & Max 3 Limit Handling
+The database stores up to 3 custom diet/meal plans per user in a separate collection (`MealPlan`). Users can switch between these 3 stored plans on the UI and toggle one as the "Active Meal Plan".
+- **Max 3 Plans Enforcement**: Users can save a maximum of 3 meal plans. When 3 plans are reached, the system displays a warning banner (`⚠️ Maximum Plan Limit Reached 3/3`), disables the Save CTA (`🔒 Limit Reached 3/3`), and provides a direct management link (`🗑️ Manage & Delete Existing Plans`) to delete older plans before saving a new one.
 
-#### 2. Log Slot from Active Plan
-Instead of logging the entire day's meals at once, logging is done slot-by-slot from the active plan. Clicking a slot-level log button (e.g., "Log Breakfast Option") copies only the recommended items for that specific slot into the user's daily consumed log (`DailyLog`) in the DB.
+#### 2. Dedicated Plan Generation & Save Modal Flow (`/generate-plan`)
+Tapping "Generate New Plan" opens a dedicated page (`/generate-plan`) displaying a live draft preview:
+- **Draft Preview & Audit**: Displays complete macro totals (`kcal · P · C · F`), slot timeline preview, nutrient gap alerts, and a `🔄 Regenerate` button to shuffle alternative meals.
+- **Save Meal Plan Modal Popup**: Clicking `💾 Save Meal Plan` triggers an interactive popup modal asking for a custom Plan Name (`✏️ Plan Name`, pre-filled with `Plan N`) and a checkbox toggle (`🌟 Set as Active Plan`) before committing to MongoDB.
 
-#### 3. Recommendation Deficit Audit & Gaps Suggestion
+#### 3. Log Slot from Active Plan
+Instead of logging the entire day's meals at once, logging is performed slot-by-slot from the active plan:
+- **Timeline Meal Slot Cards**: Connected vertical timeline track with time badges (`Breakfast 8:00 AM`, `Lunch 1:00 PM`, `Snacks 4:30 PM`, `Dinner 8:00 PM`) showing full slot macro breakdown (`450 kcal · 28g P · 42g C · 12g F`).
+- **Food Item Macro Badges**: Every food item displays detailed sub-macro breakdown badges (`🥩 P · 🍞 C · 🥑 F`).
+- **Compact Icon Button**: Clicking a 32px circular icon button (`+` when unlogged, green `✓` when logged) copies that slot's items into the user's daily consumed log (`DailyLog`) in the DB. Logging the same slot again updates/re-logs the slot items cleanly.
+
+#### 4. Recommendation Deficit Audit & Gaps Suggestion
 The engine calculates the total macros and micros of any generated or active diet plan against the user's RDA targets. If any priority nutrient falls below 95%:
 - It lists the nutrient as "Deficient in Plan".
 - It suggests a specific dense food from the database to cover the shortage (e.g., "Shortfall of Vitamin C (91% of target). Suggestion: Log 150g Papaya (+100% DV)").
-
-#### 4. Customization Filters & Inline Sizing
-Users can dynamically customize the recommendations:
-- The daily target limits remain locked to the calculated profile targets (loaded from user settings).
-- Portion sizes can be customized inline for each suggested item (using increment/decrement buttons). This dynamically updates that meal slot's calorie and protein totals before logging.
-- Exclude or allow specific ingredients grouped neatly by category (Proteins & Dairy, Grains & Legumes, Seeds & Nuts, Vegetables, Fruits), adjusting recommendations in real-time.
 
 ---
 
@@ -500,7 +503,7 @@ Users can dynamically customize the recommendations:
 | Tab | Screen / Path | Key Role |
 |---|---|---|
 | 🏠 Home | Main Dashboard (`/`) | Health command center, Calorie Hero card, 2x2 Macro grid, Water tracker, dynamic Health badges |
-| 🥗 Meals | Today's Meals (`/meals`) | Slot timeline, active meal card, AI advice |
+| 🥗 Meals | Today's Meals (`/meals`) | Active plan banner (full macros), integrated plan switcher, vertical slot timeline with macro badges, compact + / ✓ log buttons |
 | ➕ Action (Center) | Add Meal / Food Logger (`/log-food`) | Quick food search & slot-by-slot logging |
 | 📈 Progress | Health Systems (`/health`) & Insights (`/insights`) | Health score bars, trend graphs, micro details |
 | 📊 Reports | Reports (`/reports`) | Daily calorie trend, nutrition score timeline, health breakdown, top deficiencies |
@@ -512,10 +515,10 @@ Users can dynamically customize the recommendations:
 | Screen | Route / View | Key Features & Layout |
 |---|---|---|
 | **1. Main Dashboard** | `/` | Calorie Hero card (Taken/Target/TDEE), 1-row Water tracker, 2x2 Macro grid, dynamic Health badges |
-| **2. Today's Meals** | `/meals` | Meal schedule tabs, active meal card with macros, vertical slot timeline |
+| **2. Today's Meals** | `/meals` | Unified Active Plan Banner with full macros (`kcal · P · C · F`), integrated plan switcher drawer, vertical timeline slot cards, compact `+`/`✓` slot log buttons |
 | **3. Health Systems** | `/health` | 10 priority bars (Brain, Hair, Skin, etc.), filter tabs (All/Attention/Strong) |
 | **4. Micronutrient Detail** | `/micronutrients` | Ultra-compact 2-column vitamin & mineral grid with distinct nutrient icon badges, target fractions & progress bars |
-| **5. Generated Meal Plan** | `/meal-plan` | Plan banner summary, food thumbnail carousel, slot cards, Generate CTA |
+| **5. Generated Meal Plan** | `/generate-plan` | Dedicated draft preview screen, total macros banner, nutrient gap alerts, timeline preview, Save Meal Plan Modal popup |
 | **6. Add Meal / Logger** | `/log-food` | Food search bar, category chips (`All`/`My Foods`/`Recipes`/`Scan`), quick add list |
 | **7. Insights & Trends** | `/insights` | Timeframe toggle (`Today`/`Weekly`/`Monthly`), weekly trend bar chart, top foods |
 | **8. Reports & Analytics** | `/reports` | Summary cards, macro trend chart, daily score timeline, top deficient nutrients |
