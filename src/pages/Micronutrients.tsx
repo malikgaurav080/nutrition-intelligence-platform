@@ -49,7 +49,6 @@ export default function Micronutrients() {
   const { todayLog } = useNutrition();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'Vitamins' | 'Minerals'>('Vitamins');
-  const [showAll, setShowAll] = useState(false);
 
   // ── Aggregate consumed micros from today's log (backend data) ─────────
   const consumedMicros = useMemo(() => {
@@ -69,7 +68,7 @@ export default function Micronutrients() {
   }, [microRDA, consumedMicros]);
 
   const category = activeTab === 'Vitamins' ? 'vitamin' : 'mineral';
-  const allKeys = Object.entries(MICRO_DISPLAY)
+  const displayed = Object.entries(MICRO_DISPLAY)
     .filter(([, meta]) => meta.category === category)
     .map(([key, meta]) => ({
       key,
@@ -82,8 +81,6 @@ export default function Micronutrients() {
       pct: Math.round((completions as Record<string, number>)[key] ?? 0),
     }))
     .filter(n => n.target > 0);
-
-  const displayed = showAll ? allKeys : allKeys.slice(0, 6);
 
   return (
     <div className="app-container">
@@ -118,86 +115,94 @@ export default function Micronutrients() {
             id="micronutrient-tabs"
             options={['Vitamins', 'Minerals']}
             value={activeTab}
-            onChange={v => { setActiveTab(v as 'Vitamins' | 'Minerals'); setShowAll(false); }}
+            onChange={v => setActiveTab(v as 'Vitamins' | 'Minerals')}
           />
         </div>
 
-        {/* ── Nutrient rows ────────────────────────────────────── */}
-        <div className="card" style={{ padding: '4px 16px', marginBottom: 16 }}>
-          {displayed.length === 0 ? (
-            <div style={{ padding: '24px 0', textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                No micronutrient data. Log meals to see your intake.
-              </p>
-            </div>
-          ) : (
-            displayed.map(({ key, label, unit, icon, bg, target, consumed, pct }, i) => (
+        {/* ── Ultra-Compact Nutrient Grid (2 Columns / Row) ────── */}
+        {displayed.length === 0 ? (
+          <div className="card" style={{ padding: '24px 0', textAlign: 'center', marginBottom: 16 }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              No micronutrient data. Log meals to see your intake.
+            </p>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: 10,
+              marginBottom: 16,
+            }}
+          >
+            {displayed.map(({ key, label, unit, icon, bg, target, consumed, pct }, i) => (
               <div
                 key={key}
-                id={`micro-row-${key}`}
-                className="animate-fade-up"
+                id={`micro-card-${key}`}
+                className="card animate-fade-up"
                 style={{
-                  padding: '14px 0',
-                  borderBottom: i < displayed.length - 1 ? '1px solid var(--border)' : 'none',
+                  padding: '10px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 6,
                   animationDelay: `${i * 40}ms`,
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {/* Nutrient Icon Badge Container */}
+                {/* Header Row: Icon + Title inline on left, Pct score on right */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                     <div
                       style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 'var(--radius-md)',
+                        width: 28,
+                        height: 28,
+                        borderRadius: 'var(--radius-sm)',
                         backgroundColor: bg,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '1.1rem',
+                        fontSize: '0.9rem',
                         flexShrink: 0,
                       }}
                     >
                       {icon}
                     </div>
-                    <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    <p
+                      style={{
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                      title={label}
+                    >
                       {label}
                     </p>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span className="tabular-nums" style={{ fontSize: '0.82rem', fontWeight: 700, color: barColor(pct) }}>
-                      {pct}%
-                    </span>
-                    <p className="tabular-nums" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                      {consumed.toFixed(1)} / {target} {unit}
-                    </p>
-                  </div>
+                  <span
+                    className="tabular-nums"
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      color: barColor(pct),
+                      flexShrink: 0,
+                    }}
+                  >
+                    {pct}%
+                  </span>
                 </div>
-                <ProgressBar value={pct} color={barColor(pct)} height={5} delay={i * 40} />
-              </div>
-            ))
-          )}
-        </div>
 
-        {/* ── View All CTA ─────────────────────────────────────── */}
-        {!showAll && allKeys.length > 6 && (
-          <button
-            id="view-all-micronutrients"
-            className="btn-ghost"
-            onClick={() => setShowAll(true)}
-            style={{ width: '100%' }}
-          >
-            View All Micronutrients ({allKeys.length - 6} more)
-          </button>
-        )}
-        {showAll && (
-          <button
-            className="btn-ghost"
-            onClick={() => setShowAll(false)}
-            style={{ width: '100%' }}
-          >
-            Show Less
-          </button>
+                {/* Middle Row: Intake Fraction */}
+                <p className="tabular-nums" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                  {consumed.toFixed(1)} / {target} {unit}
+                </p>
+
+                {/* Footer Row: Progress Bar */}
+                <ProgressBar value={pct} color={barColor(pct)} height={4} delay={i * 40} />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

@@ -514,7 +514,7 @@ Users can dynamically customize the recommendations:
 | **1. Main Dashboard** | `/` | Calorie Hero card (Taken/Target/TDEE), 1-row Water tracker, 2x2 Macro grid, dynamic Health badges |
 | **2. Today's Meals** | `/meals` | Meal schedule tabs, active meal card with macros, vertical slot timeline |
 | **3. Health Systems** | `/health` | 10 priority bars (Brain, Hair, Skin, etc.), filter tabs (All/Attention/Strong) |
-| **4. Micronutrient Detail** | `/micronutrients` | Vitamin & mineral progress bars with distinct nutrient icon badges & target fractions |
+| **4. Micronutrient Detail** | `/micronutrients` | Ultra-compact 2-column vitamin & mineral grid with distinct nutrient icon badges, target fractions & progress bars |
 | **5. Generated Meal Plan** | `/meal-plan` | Plan banner summary, food thumbnail carousel, slot cards, Generate CTA |
 | **6. Add Meal / Logger** | `/log-food` | Food search bar, category chips (`All`/`My Foods`/`Recipes`/`Scan`), quick add list |
 | **7. Insights & Trends** | `/insights` | Timeframe toggle (`Today`/`Weekly`/`Monthly`), weekly trend bar chart, top foods |

@@ -11,39 +11,39 @@ import ProgressBar from '../components/ui/ProgressBar';
 
 const PRIORITY_MAP: Record<string, HealthSystem> = {
   'Brain & Nervous System': 'Brain',
-  'Brain Health':   'Brain',
-  'Brain':          'Brain',
-  'Hair Health':    'Hair',
-  'Hair':           'Hair',
-  'Skin Health':    'Skin',
-  'Skin':           'Skin',
-  'Bones & Teeth':  'Bone',
-  'Bone Health':    'Bone',
-  'Bone':           'Bone',
-  'Heart Health':   'Heart',
-  'Heart':          'Heart',
-  'Muscle Health':  'Muscle',
-  'Muscle':         'Muscle',
-  'Immunity':       'Immunity',
-  'Eye Health':     'Eye',
-  'Eye':            'Eye',
-  'Blood Health':   'Blood',
-  'Blood':          'Blood',
+  'Brain Health': 'Brain',
+  'Brain': 'Brain',
+  'Hair Health': 'Hair',
+  'Hair': 'Hair',
+  'Skin Health': 'Skin',
+  'Skin': 'Skin',
+  'Bones & Teeth': 'Bone',
+  'Bone Health': 'Bone',
+  'Bone': 'Bone',
+  'Heart Health': 'Heart',
+  'Heart': 'Heart',
+  'Muscle Health': 'Muscle',
+  'Muscle': 'Muscle',
+  'Immunity': 'Immunity',
+  'Eye Health': 'Eye',
+  'Eye': 'Eye',
+  'Blood Health': 'Blood',
+  'Blood': 'Blood',
   'Thyroid Health': 'Thyroid',
-  'Thyroid':        'Thyroid',
+  'Thyroid': 'Thyroid',
 };
 
 const SYSTEM_ACCENTS: Record<HealthSystem, { bg: string; border: string }> = {
-  Brain:    { bg: 'rgba(147, 51, 234, 0.12)', border: 'rgba(147, 51, 234, 0.25)' },
-  Hair:     { bg: 'rgba(236, 72, 153, 0.12)', border: 'rgba(236, 72, 153, 0.25)' },
-  Skin:     { bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.25)' },
-  Bone:     { bg: 'rgba(100, 116, 139, 0.12)', border: 'rgba(100, 116, 139, 0.25)' },
-  Heart:    { bg: 'rgba(244, 63, 94, 0.12)', border: 'rgba(244, 63, 94, 0.25)' },
-  Muscle:   { bg: 'rgba(59, 130, 246, 0.12)', border: 'rgba(59, 130, 246, 0.25)' },
+  Brain: { bg: 'rgba(147, 51, 234, 0.12)', border: 'rgba(147, 51, 234, 0.25)' },
+  Hair: { bg: 'rgba(236, 72, 153, 0.12)', border: 'rgba(236, 72, 153, 0.25)' },
+  Skin: { bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.25)' },
+  Bone: { bg: 'rgba(100, 116, 139, 0.12)', border: 'rgba(100, 116, 139, 0.25)' },
+  Heart: { bg: 'rgba(244, 63, 94, 0.12)', border: 'rgba(244, 63, 94, 0.25)' },
+  Muscle: { bg: 'rgba(59, 130, 246, 0.12)', border: 'rgba(59, 130, 246, 0.25)' },
   Immunity: { bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.25)' },
-  Eye:      { bg: 'rgba(6, 182, 212, 0.12)', border: 'rgba(6, 182, 212, 0.25)' },
-  Blood:    { bg: 'rgba(225, 29, 72, 0.12)', border: 'rgba(225, 29, 72, 0.25)' },
-  Thyroid:  { bg: 'rgba(99, 102, 241, 0.12)', border: 'rgba(99, 102, 241, 0.25)' },
+  Eye: { bg: 'rgba(6, 182, 212, 0.12)', border: 'rgba(6, 182, 212, 0.25)' },
+  Blood: { bg: 'rgba(225, 29, 72, 0.12)', border: 'rgba(225, 29, 72, 0.25)' },
+  Thyroid: { bg: 'rgba(99, 102, 241, 0.12)', border: 'rgba(99, 102, 241, 0.25)' },
 };
 
 const GLASS_ML = 250; // Each glass represents 250 ml
@@ -66,10 +66,10 @@ export default function Dashboard() {
     const totals = { calories: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, micros: {} as Record<string, number> };
     for (const meal of todayLog.meals) {
       totals.calories += meal.macros.calories;
-      totals.protein  += meal.macros.protein;
-      totals.fat      += meal.macros.fat;
-      totals.carbs    += meal.macros.carbs;
-      totals.fiber    += meal.macros.fiber;
+      totals.protein += meal.macros.protein;
+      totals.fat += meal.macros.fat;
+      totals.carbs += meal.macros.carbs;
+      totals.fiber += meal.macros.fiber;
       for (const [key, val] of Object.entries(meal.micros)) {
         totals.micros[key] = (totals.micros[key] ?? 0) + val;
       }
@@ -103,10 +103,10 @@ export default function Dashboard() {
     const mapped = rawPriorities
       .map(p => PRIORITY_MAP[p])
       .filter((sys): sys is HealthSystem => Boolean(sys));
-    
+
     // Deduplicate and cap at max 5 priorities selected by user at registration
     const unique = Array.from(new Set(mapped)).slice(0, 5);
-    
+
     // Fallback to top 5 health priorities if no priorities are selected
     if (unique.length === 0) {
       return ['Brain', 'Immunity', 'Heart', 'Bone', 'Muscle'];
@@ -294,7 +294,7 @@ export default function Dashboard() {
                 </p>
               </div>
               <p className="tabular-nums" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 2 }}>
-                {consumedGlasses} of {targetGlasses} glasses ({ (waterConsumedMl / 1000).toFixed(1) } / { (waterTargetMl / 1000).toFixed(1) } L)
+                {consumedGlasses} of {targetGlasses} glasses ({(waterConsumedMl / 1000).toFixed(1)} / {(waterTargetMl / 1000).toFixed(1)} L)
               </p>
             </div>
             <button
@@ -509,7 +509,7 @@ export default function Dashboard() {
           <div className="animate-fade-up delay-3" style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <p style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Health System Scores
+                Priority Health Scores
               </p>
               <button
                 onClick={() => navigate('/health')}

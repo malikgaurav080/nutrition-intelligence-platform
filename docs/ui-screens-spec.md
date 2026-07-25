@@ -87,11 +87,12 @@ This document breaks down the exact layout, component architecture, visual eleme
 ### Layout & Sections
 - **Header**: Back arrow, Title `"Micronutrients"`, Search icon
 - **Tabs**: `Vitamins` | `Minerals`
-- **Nutrient Rows with Fraction & Bar**:
-  - Distinct nutrient icon badges for every vitamin & mineral (e.g., 👁️ Vitamin A, 🍊 Vitamin C, ☀️ Vitamin D, 🥩 Vitamin B12, 🦴 Calcium, 🩸 Iron, ⚡ Magnesium, 🛡️ Zinc, 🐟 Omega-3) with themed accent container styling
-  - Numeric intake fraction (`850 / 900 µg`) & bold percentage score (`94%`)
-  - Color-coded progress bar (emerald ≥80%, amber ≥50%, red <50%)
-- **CTA**: `"View All Micronutrients"` button
+- **Ultra-Compact Nutrient Grid (2 Columns / Row)**:
+  - High-density 2-column grid (`display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;`) displaying all vitamins or minerals simultaneously with smooth vertical page scrolling
+  - Ultra-compact card layout:
+    - **Header Row**: Nutrient icon badge (e.g. 👁️) + title (`Vitamin A`) on top-left; bold percentage score (`94%`) on top-right
+    - **Middle Row**: Intake fraction (`850 / 900 µg`) with muted typography
+    - **Bottom Row**: Color-coded progress bar (emerald ≥80%, amber ≥50%, red <50%)
 
 ---
 
