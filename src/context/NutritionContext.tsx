@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { DailyLog, LoggedFood, SavedMealPlan } from '../types/nutrition.types';
 import { EMPTY_DAILY_LOG } from '../types/nutrition.types';
+import { VEGETARIAN_FOODS } from '../data/foodDatabase';
 import { useUser } from './UserContext';
 
 interface NutritionContextType {
@@ -9,11 +10,11 @@ interface NutritionContextType {
   loading: boolean;
   error: string | null;
   changeDate: (date: string) => Promise<void>;
-  logFood: (slot: LoggedFood['slot'], foodId: string, loggedQty: number) => Promise<boolean>;
+  logFood: (slot: LoggedFood['slot'], foodId: string, loggedQty: number, customFoodItem?: any) => Promise<boolean>;
   removeFood: (slot: LoggedFood['slot'], foodId: string) => Promise<boolean>;
   updateWater: (amountMl: number) => Promise<boolean>;
   logBulkFoods: (meals: Omit<LoggedFood, 'userId'>[]) => Promise<boolean>;
-  
+
   // Custom Diet plans
   savedPlans: SavedMealPlan[];
   activePlan: SavedMealPlan | null;
@@ -124,9 +125,15 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const logFood = async (slot: LoggedFood['slot'], foodId: string, loggedQty: number) => {
+  const logFood = async (slot: LoggedFood['slot'], foodId: string, loggedQty: number, customFoodItem?: any) => {
     const token = sessionStorage.getItem('token');
     if (!token) return false;
+
+    const foodItem = customFoodItem || VEGETARIAN_FOODS.find(f => f.id === foodId);
+    if (!foodItem) {
+      console.error('Food item not found for logging:', foodId);
+      return false;
+    }
 
     try {
       const response = await fetch('/api/logs/food', {
@@ -138,8 +145,14 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         body: JSON.stringify({
           date: activeDate,
           slot,
-          foodId,
-          loggedQty
+          foodId: foodItem.id || foodId,
+          name: foodItem.name,
+          servingSize: foodItem.servingSize,
+          servingUnit: foodItem.servingUnit,
+          baseQty: foodItem.baseQty ?? 1,
+          loggedQty,
+          macros: foodItem.macros,
+          micros: foodItem.micros
         })
       });
 
@@ -247,6 +260,26 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const token = sessionStorage.getItem('token');
     if (!token) return { success: false, error: 'Unauthorized' };
 
+    const formattedMeals = meals.map((m: any) => ({
+      slot: m.slot,
+      totalCalories: m.totalCalories,
+      totalProtein: m.totalProtein,
+      items: (m.items || []).map((item: any) => {
+        const foodObj = item.food || item;
+        return {
+          foodId: item.foodId || foodObj.id || foodObj.foodId,
+          name: item.name || foodObj.name,
+          servingSize: item.servingSize || foodObj.servingSize,
+          servingUnit: item.servingUnit || foodObj.servingUnit,
+          baseQty: item.baseQty ?? foodObj.baseQty ?? 1,
+          loggedQty: item.loggedQty ?? 1,
+          macros: item.macros || foodObj.macros,
+          micros: item.micros || foodObj.micros,
+          reason: item.reason || ''
+        };
+      })
+    }));
+
     try {
       const response = await fetch('/api/meal-plans', {
         method: 'POST',
@@ -254,7 +287,7 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ name, meals, planDeficiencies, adjustments, overwriteId })
+        body: JSON.stringify({ name, meals: formattedMeals, planDeficiencies, adjustments, overwriteId })
       });
 
       const data = await response.json();
@@ -333,6 +366,20 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const token = sessionStorage.getItem('token');
     if (!token) return false;
 
+    const formattedItems = items.map((item: any) => {
+      const foodObj = item.food || item;
+      return {
+        foodId: item.foodId || foodObj.id || foodObj.foodId,
+        name: item.name || foodObj.name,
+        servingSize: item.servingSize || foodObj.servingSize,
+        servingUnit: item.servingUnit || foodObj.servingUnit,
+        baseQty: item.baseQty ?? foodObj.baseQty ?? 1,
+        loggedQty: item.loggedQty ?? 1,
+        macros: item.macros || foodObj.macros,
+        micros: item.micros || foodObj.micros
+      };
+    });
+
     try {
       const response = await fetch('/api/logs/bulk-slot', {
         method: 'POST',
@@ -343,7 +390,7 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         body: JSON.stringify({
           date: activeDate,
           slot,
-          meals: items
+          meals: formattedItems
         })
       });
 

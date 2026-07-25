@@ -10,23 +10,23 @@ import AppHeader from '../components/layout/AppHeader';
 import BottomNav from '../components/layout/BottomNav';
 
 const PRIORITY_MAP: Record<string, HealthSystem> = {
-  'Brain Health':   'Brain',
-  'Hair Health':    'Hair',
-  'Skin Health':    'Skin',
-  'Bone Health':    'Bone',
-  'Heart Health':   'Heart',
-  'Muscle Health':  'Muscle',
-  'Immunity':       'Immunity',
-  'Eye Health':     'Eye',
-  'Blood Health':   'Blood',
+  'Brain Health': 'Brain',
+  'Hair Health': 'Hair',
+  'Skin Health': 'Skin',
+  'Bone Health': 'Bone',
+  'Heart Health': 'Heart',
+  'Muscle Health': 'Muscle',
+  'Immunity': 'Immunity',
+  'Eye Health': 'Eye',
+  'Blood Health': 'Blood',
   'Thyroid Health': 'Thyroid',
 };
 
 const SLOT_EMOJIS: Record<string, string> = {
   Breakfast: '☀️',
-  Lunch:     '🌤️',
-  Snacks:    '🍎',
-  Dinner:    '🌙',
+  Lunch: '🌤️',
+  Snacks: '🍎',
+  Dinner: '🌙',
 };
 
 /**
@@ -36,7 +36,7 @@ const SLOT_EMOJIS: Record<string, string> = {
  * Fully wired to: generateMealPlan engine, saveMealPlan API, logSlotFromPlan API.
  */
 export default function MealPlan() {
-  const { todayLog, savedPlans, activePlan, saveMealPlan, setActiveMealPlan, logSlotFromPlan } = useNutrition();
+  const { todayLog, savedPlans, activePlan, saveMealPlan, setActiveMealPlan, deleteMealPlan, logSlotFromPlan } = useNutrition();
   const { currentUser, nutritionTargets, microRDA } = useUser();
   const navigate = useNavigate();
 
@@ -55,7 +55,7 @@ export default function MealPlan() {
     const totals = { calories: 0, protein: 0, micros: {} as Record<string, number> };
     for (const meal of todayLog.meals) {
       totals.calories += meal.macros.calories;
-      totals.protein  += meal.macros.protein;
+      totals.protein += meal.macros.protein;
       for (const [k, v] of Object.entries(meal.micros)) {
         totals.micros[k] = (totals.micros[k] ?? 0) + v;
       }
@@ -69,7 +69,7 @@ export default function MealPlan() {
     setIsGenerating(true);
 
     const remainCalories = Math.max(nutritionTargets.calories - dailyTotals.calories, 0);
-    const remainProtein  = Math.max(nutritionTargets.protein_g - dailyTotals.protein, 0);
+    const remainProtein = Math.max(nutritionTargets.protein_g - dailyTotals.protein, 0);
     const selectedSystems = (currentUser?.healthPriorities ?? [])
       .map(p => PRIORITY_MAP[p]).filter(Boolean) as HealthSystem[];
 
@@ -327,22 +327,60 @@ export default function MealPlan() {
             </div>
 
             {/* ── Actions row ──────────────────────────────────── */}
-            {activeViewPlan === 'generator' && (
-              <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+              {activeViewPlan === 'generator' ? (
                 <button className="btn-ghost" style={{ flex: 1 }} onClick={handleSavePlan}>
                   💾 Save Plan
                 </button>
-                {savedPlans.length > 0 && activePlan?._id !== activeViewPlan && (
+              ) : (
+                <>
+                  {activePlan?._id !== activeViewPlan ? (
+                    <button
+                      className="btn-ghost"
+                      style={{ flex: 1 }}
+                      onClick={async () => {
+                        const ok = await setActiveMealPlan(activeViewPlan);
+                        if (ok) setSaveMsg('Plan activated!');
+                        setTimeout(() => setSaveMsg(null), 2500);
+                      }}
+                    >
+                      ⚡ Set Active
+                    </button>
+                  ) : (
+                    <span
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '10px 14px',
+                        borderRadius: 'var(--radius-md)',
+                        backgroundColor: 'var(--primary-bg)',
+                        color: 'var(--primary)',
+                        fontSize: '0.82rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      Active Plan ✓
+                    </span>
+                  )}
                   <button
                     className="btn-ghost"
-                    style={{ flex: 1 }}
-                    onClick={() => activePlan?._id && setActiveMealPlan(activePlan._id)}
+                    style={{ flex: 1, color: 'var(--color-red)', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+                    onClick={async () => {
+                      const ok = await deleteMealPlan(activeViewPlan);
+                      if (ok) {
+                        setActiveViewPlan('generator');
+                        setSaveMsg('Plan deleted');
+                        setTimeout(() => setSaveMsg(null), 2500);
+                      }
+                    }}
                   >
-                    ⚡ Set Active
+                    🗑️ Delete Plan
                   </button>
-                )}
-              </div>
-            )}
+                </>
+              )}
+            </div>
 
             {/* ── Smart Adjustments ────────────────────────────── */}
             {displayPlan.adjustments.length > 0 && (

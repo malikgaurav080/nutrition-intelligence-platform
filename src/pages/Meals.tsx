@@ -11,16 +11,16 @@ const SLOTS: LoggedFood['slot'][] = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 
 const SLOT_TIMES: Record<LoggedFood['slot'], string> = {
   Breakfast: '8:30 AM',
-  Lunch:     '12:30 PM',
-  Snacks:    '4:30 PM',
-  Dinner:    '7:30 PM',
+  Lunch: '12:30 PM',
+  Snacks: '4:30 PM',
+  Dinner: '7:30 PM',
 };
 
 const SLOT_EMOJIS: Record<LoggedFood['slot'], string> = {
   Breakfast: '☀️',
-  Lunch:     '🌤️',
-  Snacks:    '🍎',
-  Dinner:    '🌙',
+  Lunch: '🌤️',
+  Snacks: '🍎',
+  Dinner: '🌙',
 };
 
 /**
@@ -43,9 +43,9 @@ export default function Meals() {
       const items = todayLog.meals.filter(m => m.slot === slot);
       totals[slot] = {
         calories: Math.round(items.reduce((s, m) => s + m.macros.calories, 0)),
-        protein:  Math.round(items.reduce((s, m) => s + m.macros.protein, 0)),
-        carbs:    Math.round(items.reduce((s, m) => s + m.macros.carbs, 0)),
-        fat:      Math.round(items.reduce((s, m) => s + m.macros.fat, 0)),
+        protein: Math.round(items.reduce((s, m) => s + m.macros.protein, 0)),
+        carbs: Math.round(items.reduce((s, m) => s + m.macros.carbs, 0)),
+        fat: Math.round(items.reduce((s, m) => s + m.macros.fat, 0)),
         items,
       };
     }
@@ -64,7 +64,7 @@ export default function Meals() {
     const completions = buildMicroCompletions(consumed, microRDA);
     // Find lowest-completion priority nutrient
     const alerts: { label: string; pct: number }[] = [
-      { label: 'Iron',    pct: completions.iron ?? 0 },
+      { label: 'Iron', pct: completions.iron ?? 0 },
       { label: 'Omega-3', pct: completions.omega3 ?? 0 },
       { label: 'Calcium', pct: completions.calcium ?? 0 },
       { label: 'Vitamin D', pct: completions.vitD ?? 0 },
@@ -93,8 +93,8 @@ export default function Meals() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8"  y1="2" x2="8"  y2="6" />
-              <line x1="3"  y1="10" x2="21" y2="10" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           </button>
         }
@@ -151,9 +151,9 @@ export default function Meals() {
               <div style={{ display: 'flex', gap: 12 }}>
                 {[
                   { label: 'Calories', val: `${activeSlotData.calories} kcal`, color: 'var(--text-primary)' },
-                  { label: 'Protein',  val: `${activeSlotData.protein}g`,      color: 'var(--macro-protein)' },
-                  { label: 'Carbs',    val: `${activeSlotData.carbs}g`,        color: 'var(--macro-carbs)'  },
-                  { label: 'Fat',      val: `${activeSlotData.fat}g`,          color: 'var(--macro-fat)'    },
+                  { label: 'Protein', val: `${activeSlotData.protein}g`, color: 'var(--macro-protein)' },
+                  { label: 'Carbs', val: `${activeSlotData.carbs}g`, color: 'var(--macro-carbs)' },
+                  { label: 'Fat', val: `${activeSlotData.fat}g`, color: 'var(--macro-fat)' },
                 ].map(m => (
                   <div key={m.label} style={{ textAlign: 'center' }}>
                     <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: 2 }}>{m.label}</p>
@@ -187,50 +187,61 @@ export default function Meals() {
         )}
 
         {/* ── Meal Timeline ────────────────────────────────────── */}
-        <p style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
-          Meal Timeline
-        </p>
-        <div className="card" style={{ padding: '0 16px', marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <p style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Meal Timeline
+          </p>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}>
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </div>
+
+        <div className="timeline-wrapper">
+          <div className="timeline-connector-line" />
           {SLOTS.map(slot => {
             const data = slotTotals[slot];
             const done = data.items.length > 0;
+            const recKcal = { Breakfast: 480, Lunch: 650, Snacks: 200, Dinner: 550 }[slot];
+            const slotKcal = done ? data.calories : recKcal;
+
             return (
               <div
                 key={slot}
-                className="timeline-item"
                 id={`timeline-${slot.toLowerCase()}`}
+                className="timeline-card"
                 onClick={() => done
                   ? setActiveSlotTab(slot)
                   : navigate('/log-food')
                 }
                 style={{ cursor: 'pointer' }}
               >
-                {/* Timeline dot */}
-                <div className={`timeline-dot ${done ? 'timeline-dot--done' : 'timeline-dot--pending'}`}>
+                {/* Timeline badge */}
+                <div className={`timeline-badge ${done ? 'timeline-badge--done' : 'timeline-badge--pending'}`}>
                   {done ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-                      <circle cx="12" cy="12" r="6" />
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="8" />
+                      <polyline points="12 8 12 12 15 13.5" />
                     </svg>
                   )}
                 </div>
 
                 {/* Slot info */}
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                  <p style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)', marginBottom: 2 }}>
                     {slot}
                   </p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {SLOT_TIMES[slot]} {done ? `• ${data.calories} kcal` : '• Not logged'}
+                  <p className="tabular-nums" style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                    {SLOT_TIMES[slot]} • {slotKcal} kcal
                   </p>
                 </div>
 
                 {/* Action */}
                 {done ? (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                     {data.items.map(item => (
                       <button
                         key={`${slot}-${item.foodId}`}
@@ -240,15 +251,15 @@ export default function Meals() {
                           await removeFood(slot, item.foodId);
                         }}
                         style={{
-                          width: 24,
-                          height: 24,
+                          width: 26,
+                          height: 26,
                           borderRadius: '50%',
                           backgroundColor: 'var(--color-red-bg)',
                           color: 'var(--color-red)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '0.7rem',
+                          fontSize: '0.8rem',
                           border: 'none',
                           cursor: 'pointer',
                         }}
@@ -260,21 +271,8 @@ export default function Meals() {
                 ) : (
                   <button
                     aria-label={`Add food to ${slot}`}
+                    className="timeline-add-btn"
                     onClick={e => { e.stopPropagation(); navigate('/log-food'); }}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: '50%',
-                      backgroundColor: 'var(--bg-surface)',
-                      color: 'var(--text-secondary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid var(--border)',
-                      cursor: 'pointer',
-                      fontSize: '1.1rem',
-                      lineHeight: 1,
-                    }}
                   >
                     +
                   </button>

@@ -59,7 +59,7 @@ export default function LogFood() {
 
   // ── Log food via backend API ───────────────────────────────────────────
   const handleLog = async (food: FoodItem, logQty = 1, slot = selectedSlot) => {
-    const success = await logFood(slot, food.id, logQty);
+    const success = await logFood(slot, food.id, logQty, food);
     if (success) {
       setLogMessage(`${food.name} logged to ${slot}!`);
       setSelectedFood(null);

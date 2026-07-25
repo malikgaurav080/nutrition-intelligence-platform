@@ -229,17 +229,29 @@ router.post('/bulk-slot', protect, async (req: AuthRequest, res: Response): Prom
 
     // Add new batch of items for this slot
     for (const item of meals) {
-      log.meals.push({
-        slot,
-        foodId: item.foodId,
-        name: item.name,
-        servingSize: item.servingSize,
-        servingUnit: item.servingUnit,
-        baseQty: item.baseQty,
-        loggedQty: item.loggedQty,
-        macros: item.macros,
-        micros: item.micros
-      } as any);
+      const foodObj = item.food || item;
+      const foodId = item.foodId || foodObj.id || foodObj.foodId;
+      const name = item.name || foodObj.name;
+      const servingSize = item.servingSize || foodObj.servingSize;
+      const servingUnit = item.servingUnit || foodObj.servingUnit;
+      const baseQty = item.baseQty ?? foodObj.baseQty ?? 1;
+      const loggedQty = item.loggedQty ?? 1;
+      const macros = item.macros || foodObj.macros;
+      const micros = item.micros || foodObj.micros;
+
+      if (foodId && name && macros && micros) {
+        log.meals.push({
+          slot,
+          foodId,
+          name,
+          servingSize,
+          servingUnit,
+          baseQty,
+          loggedQty,
+          macros,
+          micros
+        } as any);
+      }
     }
 
     await log.save();

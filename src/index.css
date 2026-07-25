@@ -5,59 +5,67 @@
    ═══════════════════════════════════════════════════════════ */
 :root {
   /* Backgrounds */
-  --bg-app:      #F7F8FA;
-  --bg-card:     #FFFFFF;
-  --bg-surface:  #F2F4F7;
-  --bg-input:    #F2F4F7;
+  --bg-app: #F7F8FA;
+  --bg-card: #FFFFFF;
+  --bg-surface: #F2F4F7;
+  --bg-input: #F2F4F7;
 
   /* Borders & Dividers */
-  --border:      #E5E7EB;
-  --divider:     rgba(0, 0, 0, 0.06);
+  --border: #E5E7EB;
+  --divider: rgba(0, 0, 0, 0.06);
 
   /* Text */
-  --text-primary:   #111827;
+  --text-primary: #111827;
   --text-secondary: #6B7280;
-  --text-muted:     #9CA3AF;
+  --text-muted: #9CA3AF;
 
   /* Brand Colors */
-  --primary:        #16A34A;   /* emerald green — buttons, active states */
-  --primary-dark:   #15803D;   /* hover state */
-  --primary-bg:     rgba(22, 163, 74, 0.08);
-  --primary-ring:   rgba(22, 163, 74, 0.15);
+  --primary: #16A34A;
+  /* emerald green — buttons, active states */
+  --primary-dark: #15803D;
+  /* hover state */
+  --primary-bg: rgba(22, 163, 74, 0.08);
+  --primary-ring: rgba(22, 163, 74, 0.15);
 
   /* Hero card (Screen 1 emerald card) */
-  --hero-bg-from:  #064E3B;
-  --hero-bg-to:    #065F46;
+  --hero-bg-from: #064E3B;
+  --hero-bg-to: #065F46;
 
   /* Status Colors */
-  --color-amber:   #F59E0B;
+  --color-amber: #F59E0B;
   --color-amber-bg: rgba(245, 158, 11, 0.10);
-  --color-red:     #EF4444;
-  --color-red-bg:  rgba(239, 68, 68, 0.10);
-  --color-blue:    #3B82F6;
+  --color-red: #EF4444;
+  --color-red-bg: rgba(239, 68, 68, 0.10);
+  --color-blue: #3B82F6;
   --color-blue-bg: rgba(59, 130, 246, 0.10);
-  --color-green:   #16A34A;
+  --color-green: #16A34A;
   --color-green-bg: rgba(22, 163, 74, 0.10);
 
   /* Macro Colors (donut chart + progress bars) */
-  --macro-protein: #3B82F6;   /* blue */
-  --macro-carbs:   #F59E0B;   /* amber */
-  --macro-fat:     #EF4444;   /* red */
-  --macro-fiber:   #8B5CF6;   /* purple */
-  --macro-water:   #06B6D4;   /* cyan */
-  --macro-calories:#16A34A;   /* green */
+  --macro-protein: #3B82F6;
+  /* blue */
+  --macro-carbs: #F59E0B;
+  /* amber */
+  --macro-fat: #EF4444;
+  /* red */
+  --macro-fiber: #8B5CF6;
+  /* purple */
+  --macro-water: #06B6D4;
+  /* cyan */
+  --macro-calories: #16A34A;
+  /* green */
 
   /* Shadows */
-  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.10);
-  --shadow-nav:  0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+  --shadow-nav: 0 8px 32px rgba(0, 0, 0, 0.12);
 
   /* Border Radius */
-  --radius-sm:   8px;
-  --radius-md:   12px;
-  --radius-lg:   16px;
-  --radius-xl:   20px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   /* Typography */
@@ -71,24 +79,26 @@
    DARK MODE (optional, future toggle)
    ═══════════════════════════════════════════════════════════ */
 [data-theme='dark'] {
-  --bg-app:      #0B0F14;
-  --bg-card:     #1A222D;
-  --bg-surface:  #141A22;
-  --bg-input:    #141A22;
-  --border:      rgba(255, 255, 255, 0.08);
-  --divider:     rgba(255, 255, 255, 0.06);
-  --text-primary:   #FFFFFF;
+  --bg-app: #0B0F14;
+  --bg-card: #1A222D;
+  --bg-surface: #141A22;
+  --bg-input: #141A22;
+  --border: rgba(255, 255, 255, 0.08);
+  --divider: rgba(255, 255, 255, 0.06);
+  --text-primary: #FFFFFF;
   --text-secondary: #94A3B8;
-  --text-muted:     #64748B;
-  --shadow-sm:   0 1px 4px rgba(0, 0, 0, 0.3);
-  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-nav:  0 8px 32px rgba(0, 0, 0, 0.6);
+  --text-muted: #64748B;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-nav: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 
 /* ═══════════════════════════════════════════════════════════
    RESET & BASE
    ═══════════════════════════════════════════════════════════ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -116,7 +126,9 @@ button {
   background: none;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: var(--font-inter);
 }
 
@@ -148,7 +160,8 @@ a {
 .page-content {
   padding: 0 var(--page-px);
   padding-top: 16px;
-  padding-bottom: 110px; /* space for bottom nav */
+  padding-bottom: 110px;
+  /* space for bottom nav */
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -183,7 +196,12 @@ a {
 /* ═══════════════════════════════════════════════════════════
    TYPOGRAPHY UTILITIES
    ═══════════════════════════════════════════════════════════ */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -203,13 +221,33 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 12px;
 }
 
-.text-primary   { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.text-muted     { color: var(--text-muted); }
-.text-green     { color: var(--primary); }
-.text-amber     { color: var(--color-amber); }
-.text-red       { color: var(--color-red); }
-.text-blue      { color: var(--color-blue); }
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-green {
+  color: var(--primary);
+}
+
+.text-amber {
+  color: var(--color-amber);
+}
+
+.text-red {
+  color: var(--color-red);
+}
+
+.text-blue {
+  color: var(--color-blue);
+}
 
 /* ═══════════════════════════════════════════════════════════
    BUTTON SYSTEM
@@ -228,8 +266,14 @@ h1, h2, h3, h4, h5, h6 {
   transition: background-color 0.2s ease, transform 0.1s ease;
   width: 100%;
 }
-.btn-primary:hover   { background-color: var(--primary-dark); }
-.btn-primary:active  { transform: scale(0.98); }
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
 
 .btn-ghost {
   display: inline-flex;
@@ -245,7 +289,10 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--border);
   transition: all 0.2s ease;
 }
-.btn-ghost:hover { background-color: var(--bg-surface); }
+
+.btn-ghost:hover {
+  background-color: var(--bg-surface);
+}
 
 .btn-fab {
   width: 52px;
@@ -259,8 +306,15 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 16px rgba(22, 163, 74, 0.4);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.btn-fab:hover  { transform: scale(1.05); box-shadow: 0 6px 20px rgba(22, 163, 74, 0.5); }
-.btn-fab:active { transform: scale(0.96); }
+
+.btn-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.5);
+}
+
+.btn-fab:active {
+  transform: scale(0.96);
+}
 
 /* ═══════════════════════════════════════════════════════════
    PROGRESS BAR
@@ -326,11 +380,30 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
 }
 
-.badge-green  { background: var(--color-green-bg); color: var(--color-green); }
-.badge-amber  { background: var(--color-amber-bg); color: var(--color-amber); }
-.badge-red    { background: var(--color-red-bg);   color: var(--color-red);   }
-.badge-blue   { background: var(--color-blue-bg);  color: var(--color-blue);  }
-.badge-gold   { background: rgba(245, 158, 11, 0.12); color: #D97706; }
+.badge-green {
+  background: var(--color-green-bg);
+  color: var(--color-green);
+}
+
+.badge-amber {
+  background: var(--color-amber-bg);
+  color: var(--color-amber);
+}
+
+.badge-red {
+  background: var(--color-red-bg);
+  color: var(--color-red);
+}
+
+.badge-blue {
+  background: var(--color-blue-bg);
+  color: var(--color-blue);
+}
+
+.badge-gold {
+  background: rgba(245, 158, 11, 0.12);
+  color: #D97706;
+}
 
 /* Completed meal badge */
 .badge-completed {
@@ -395,18 +468,42 @@ h1, h2, h3, h4, h5, h6 {
 /* ═══════════════════════════════════════════════════════════
    HEALTH SCORE COLOR UTILITIES
    ═══════════════════════════════════════════════════════════ */
-.score-green  { color: var(--primary); }
-.score-amber  { color: var(--color-amber); }
-.score-red    { color: var(--color-red); }
-.score-blue   { color: var(--color-blue); }
+.score-green {
+  color: var(--primary);
+}
+
+.score-amber {
+  color: var(--color-amber);
+}
+
+.score-red {
+  color: var(--color-red);
+}
+
+.score-blue {
+  color: var(--color-blue);
+}
 
 /* Legacy indigo class */
-.score-indigo { color: #6366F1; }
+.score-indigo {
+  color: #6366F1;
+}
 
-.score-green-bg  { background-color: var(--color-green-bg); }
-.score-amber-bg  { background-color: var(--color-amber-bg); }
-.score-red-bg    { background-color: var(--color-red-bg); }
-.score-indigo-bg { background-color: rgba(99, 102, 241, 0.08); }
+.score-green-bg {
+  background-color: var(--color-green-bg);
+}
+
+.score-amber-bg {
+  background-color: var(--color-amber-bg);
+}
+
+.score-red-bg {
+  background-color: var(--color-red-bg);
+}
+
+.score-indigo-bg {
+  background-color: rgba(99, 102, 241, 0.08);
+}
 
 /* ═══════════════════════════════════════════════════════════
    FILTER PILL TABS
@@ -418,7 +515,10 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 4px;
   scrollbar-width: none;
 }
-.pill-tabs::-webkit-scrollbar { display: none; }
+
+.pill-tabs::-webkit-scrollbar {
+  display: none;
+}
 
 .pill-tab {
   flex-shrink: 0;
@@ -444,37 +544,97 @@ h1, h2, h3, h4, h5, h6 {
 /* ═══════════════════════════════════════════════════════════
    TIMELINE (Meals page)
    ═══════════════════════════════════════════════════════════ */
-.timeline-item {
+.timeline-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.timeline-connector-line {
+  position: absolute;
+  top: 24px;
+  bottom: 24px;
+  left: 27px;
+  width: 2px;
+  background-color: var(--border);
+  z-index: 0;
+}
+
+.timeline-card {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
+  gap: 14px;
+  padding: 14px 16px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
 }
 
-.timeline-item:last-child {
-  border-bottom: none;
+.timeline-card:hover {
+  border-color: rgba(22, 163, 74, 0.3);
 }
 
-.timeline-dot {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
+.timeline-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  box-shadow: var(--shadow-sm);
 }
 
-.timeline-dot--done {
-  background-color: var(--primary);
+.timeline-badge--done {
+  background-color: #16A34A;
   color: #FFFFFF;
 }
 
-.timeline-dot--pending {
+.timeline-badge--pending {
   background-color: var(--bg-surface);
-  border: 2px dashed var(--border);
-  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.timeline-badge--pending::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 6px;
+  background-color: #16A34A;
+  border-radius: 2px;
+}
+
+.timeline-add-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.timeline-add-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -489,8 +649,14 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
   transition: opacity 0.15s ease;
 }
-.nav-list-item:last-child { border-bottom: none; }
-.nav-list-item:hover      { opacity: 0.7; }
+
+.nav-list-item:last-child {
+  border-bottom: none;
+}
+
+.nav-list-item:hover {
+  opacity: 0.7;
+}
 
 /* ═══════════════════════════════════════════════════════════
    GLASSMORPHISM (only bottom nav + modals, per spec)
@@ -506,28 +672,57 @@ h1, h2, h3, h4, h5, h6 {
    ANIMATIONS
    ═══════════════════════════════════════════════════════════ */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes ring-fill {
-  from { stroke-dashoffset: var(--ring-start, 400); }
-  to   { stroke-dashoffset: var(--ring-end, 0); }
+  from {
+    stroke-dashoffset: var(--ring-start, 400);
+  }
+
+  to {
+    stroke-dashoffset: var(--ring-end, 0);
+  }
 }
 
 @keyframes bar-expand {
-  from { width: 0%; }
-  to   { width: var(--bar-target, 0%); }
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: var(--bar-target, 0%);
+  }
 }
 
 @keyframes scale-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to   { transform: scale(1);    opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .animate-fade-up {
@@ -543,11 +738,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Staggered delay utilities */
-.delay-1 { animation-delay: 60ms; }
-.delay-2 { animation-delay: 120ms; }
-.delay-3 { animation-delay: 180ms; }
-.delay-4 { animation-delay: 240ms; }
-.delay-5 { animation-delay: 300ms; }
+.delay-1 {
+  animation-delay: 60ms;
+}
+
+.delay-2 {
+  animation-delay: 120ms;
+}
+
+.delay-3 {
+  animation-delay: 180ms;
+}
+
+.delay-4 {
+  animation-delay: 240ms;
+}
+
+.delay-5 {
+  animation-delay: 300ms;
+}
 
 /* ═══════════════════════════════════════════════════════════
    FORM INPUTS

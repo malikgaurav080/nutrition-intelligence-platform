@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { calculateTargets } from '../engine/calculateTargets';
 import { getRDA } from '../data/rdaTable';
 import type { NutritionTargets, MicroRDA } from '../types/nutrition.types';
@@ -70,8 +70,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const hasFetchedRef = useRef(false);
+
   // Check for existing token and load user profile on mount
   useEffect(() => {
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     const loadUser = async () => {
       const token = sessionStorage.getItem('token');
       if (!token) {

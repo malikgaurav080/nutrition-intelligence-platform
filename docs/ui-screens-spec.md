@@ -51,10 +51,13 @@ This document breaks down the exact layout, component architecture, visual eleme
   - Status badge: `Completed ✓`
   - Macro breakdown pill: Calories `480 kcal`, Protein `28g`, Carbs `42g`, Fat `18g`
 - **Meal Timeline (Vertical Timeline)**:
-  - Breakfast slot (`8:30 AM • 480 kcal`) — Checkmark badge
-  - Lunch slot (`12:30 PM • 650 kcal`) — `(+)` Add button
-  - Snacks slot (`4:30 PM • 200 kcal`) — `(+)` Add button
-  - Dinner slot (`7:30 PM • 550 kcal`) — `(+)` Add button
+  - Header: `"Meal Timeline"` title with top-right chevron icon (`>`)
+  - Vertical layout: Individual rounded card containers for each slot linked by a continuous left vertical connector line
+  - Node Badges:
+    - Logged Slot: Solid green circular checkmark badge (`✓`)
+    - Pending Slot: Circular outlined badge with clock icon and green top accent tab
+  - Details: Bold slot title (`Breakfast`, `Lunch`, `Snacks`, `Dinner`), subtitle line formatted as `Time • Calories` (e.g. `8:30 AM • 480 kcal`, `12:30 PM • 650 kcal`)
+  - Actions: Circular elevated `+` button on right side for pending slots
 - **AI Recommendation Card**:
   - Soft grey card with nutrient icon/photo
   - Copy: *"You're low on Iron and Omega-3. Add Pumpkin Seeds to your next meal."*
