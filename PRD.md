@@ -10,7 +10,7 @@
 > - 📄 **Personalised RDA Reference Table**: [docs/rda-reference.md](./docs/rda-reference.md)
 > - 💡 **Essential Nutrients & Health Guide**: [docs/essential-nutrients-guide.md](./docs/essential-nutrients-guide.md)
 > - 🥗 **52-Item Vegetarian Food Database**: [docs/foodDatabase.md](./docs/foodDatabase.md)
-> - 📱 **9-Screen UI Layout Specification**: [docs/ui-screens-spec.md](./docs/ui-screens-spec.md)
+> - 📱 **UI Layout Specification & Visual Layout**: [docs/ui-screens-spec.md](./docs/ui-screens-spec.md)
 > - 🎨 **Design System & Theme Guidelines**: [docs/design-system.md](./docs/design-system.md)
 > - 📋 **Active Development Task Tracker**: [task.md](./task.md)
 
@@ -370,13 +370,12 @@ The engine prioritizes tracking, recommendations, and deficit alerts for 14 core
 
 ## 6. 📱 Dashboard & Screen Layouts
 
-> 📱 **Full Visual & Screen Specification:** Detailed section-by-section breakdown, component hierarchy, visual layout, and interactive states for all 9 app screens are documented in [docs/ui-screens-spec.md](./docs/ui-screens-spec.md).
-
 ### 6.1 Daily Macro Dashboard (`/`)
-- **Header**: Greeting (`"Good Morning Gaurav 👋"`), Hamburger menu, Notification bell with badge.
-- **Hero Nutrition Score Card**: Dark Emerald Green card with large numeric score (`92 Excellent`), animated SVG radial gauge, and trend (`↑ 12% vs yesterday`).
-- **Today's Progress (2x3 Grid)**: Calories, Protein, Carbs, Fat, Fiber, Water cards with absolute numbers, targets, percentages, and progress bars.
-- **Health System Scores Row**: Horizontal badges for Brain, Immunity, Heart, Bones, Muscle scores.
+- **Header**: Greeting (`"Good Morning Gaurav 👋"`), Merged Profile Avatar + Hamburger menu badge (opens Profile Drawer), Notification bell with badge.
+- **Hero Calorie & Energy Balance Card**: Dark Emerald Green card showing Taken Calories, Target Calories (goal), Maintenance Calories (TDEE), and remaining deficit/surplus badge.
+- **Interactive Water Tracker**: Responsive 1-row clear SVG glass icons layout (8–10 glasses in 1 row) with +250ml logging.
+- **Macronutrient Progress (2x2 Grid)**: Protein (🥩), Carbs (🍞), Fat (🥑), Fiber (🌿) cards with nutrient icons, fraction totals, percentages, progress bars, and direct `"Micronutrients 💊"` navigation button.
+- **Health System Scores Row**: Dynamic circular icon badges for user's selected registration health priorities (up to 5 max, e.g. Brain 🧠 91%, Immunity 🛡️ 74%, Heart ❤️ 88%, Bones 🦴 82%, Muscle 💪 87%).
 
 ### 6.2 Health Status Screen (`/health`)
 - Dedicated status page with category filter tabs (`All`, `Needs Attention`, `Strong`).
@@ -500,25 +499,27 @@ Users can dynamically customize the recommendations:
 
 | Tab | Screen / Path | Key Role |
 |---|---|---|
-| 🏠 Home | Main Dashboard (`/`) | Health command center, score ring, 2x3 progress grid |
+| 🏠 Home | Main Dashboard (`/`) | Health command center, Calorie Hero card, 2x2 Macro grid, Water tracker, dynamic Health badges |
 | 🥗 Meals | Today's Meals (`/meals`) | Slot timeline, active meal card, AI advice |
 | ➕ Action (Center) | Add Meal / Food Logger (`/log-food`) | Quick food search & slot-by-slot logging |
 | 📈 Progress | Health Systems (`/health`) & Insights (`/insights`) | Health score bars, trend graphs, micro details |
-| 👤 Profile | Profile & Settings (`/profile`) | User profile card, membership, AI feature navigation |
+| 📊 Reports | Reports (`/reports`) | Daily calorie trend, nutrition score timeline, health breakdown, top deficiencies |
 
-### 9 Core Screens Summary
+> **Profile Drawer**: Profile is accessed via the top-left circular user avatar in `AppHeader` across all screens, opening a slide-in panel with user stats and quick options.
+
+### App Screens Summary
 
 | Screen | Route / View | Key Features & Layout |
 |---|---|---|
-| **1. Main Dashboard** | `/` | Nutrition Score 92 ring, 2x3 progress grid, health system chips |
-| **2. Today's Meals** | `/meals` | Meal schedule tabs, active meal card with macros, vertical timeline |
+| **1. Main Dashboard** | `/` | Calorie Hero card (Taken/Target/TDEE), 1-row Water tracker, 2x2 Macro grid, dynamic Health badges |
+| **2. Today's Meals** | `/meals` | Meal schedule tabs, active meal card with macros, vertical slot timeline |
 | **3. Health Systems** | `/health` | 10 priority bars (Brain, Hair, Skin, etc.), filter tabs (All/Attention/Strong) |
-| **4. Nutrition Targets** | `/targets` | Macro radial donut chart (2,200 kcal), fiber & water recommendation cards |
-| **5. Micronutrient Detail** | `/micronutrients` | Vitamin & mineral progress bars with target fractions (`850 / 900 µg`) |
-| **6. Generated Meal Plan** | `/meal-plan` | Plan banner summary, food thumbnail carousel, slot cards, Generate CTA |
-| **7. Add Meal / Logger** | `/log-food` | Food search bar, category chips (`All`/`My Foods`/`Recipes`/`Scan`), quick add list |
-| **8. Insights & Trends** | `/insights` | Timeframe toggle (`Today`/`Weekly`/`Monthly`), weekly trend bar chart, top foods |
-| **9. Profile & Settings** | `/profile` | User avatar card (`Gaurav Malik`), Gold membership badge, AI feature list |
+| **4. Micronutrient Detail** | `/micronutrients` | Vitamin & mineral progress bars with distinct nutrient icon badges & target fractions |
+| **5. Generated Meal Plan** | `/meal-plan` | Plan banner summary, food thumbnail carousel, slot cards, Generate CTA |
+| **6. Add Meal / Logger** | `/log-food` | Food search bar, category chips (`All`/`My Foods`/`Recipes`/`Scan`), quick add list |
+| **7. Insights & Trends** | `/insights` | Timeframe toggle (`Today`/`Weekly`/`Monthly`), weekly trend bar chart, top foods |
+| **8. Reports & Analytics** | `/reports` | Summary cards, macro trend chart, daily score timeline, top deficient nutrients |
+| **9. Profile Drawer** | Slide-in drawer | Triggered from top-left avatar; User stats, Pro status, AI feature navigation |
 
 ---
 
