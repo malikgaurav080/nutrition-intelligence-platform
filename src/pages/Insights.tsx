@@ -1,195 +1,273 @@
 import { useState, useMemo } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { useNutrition } from '../context/NutritionContext';
-import { getSystemNutrients, HEALTH_SYSTEM_META } from '../engine/healthScore';
-import type { HealthSystem } from '../engine/healthScore';
-import MicroNutrientRow from '../components/MicroNutrientRow';
+import { buildMicroCompletions } from '../engine/microConverter';
+import AppHeader from '../components/layout/AppHeader';
+import BottomNav from '../components/layout/BottomNav';
+import SegmentedControl from '../components/ui/SegmentedControl';
 
-const PRIORITY_MAP: Record<string, HealthSystem> = {
-  'Brain Health':   'Brain',
-  'Hair Health':    'Hair',
-  'Skin Health':    'Skin',
-  'Bone Health':    'Bone',
-  'Heart Health':   'Heart',
-  'Muscle Health':  'Muscle',
-  'Immunity':       'Immunity',
-  'Eye Health':     'Eye',
-  'Blood Health':   'Blood',
-  'Thyroid Health': 'Thyroid',
-};
-
-/** Human-readable labels and units for each MicroKey */
-const MICRO_META: Record<string, { label: string; unit: string }> = {
-  vitA:       { label: 'Vitamin A',   unit: 'µg' },
-  vitC:       { label: 'Vitamin C',   unit: 'mg' },
-  vitD:       { label: 'Vitamin D',   unit: 'µg' },
-  vitE:       { label: 'Vitamin E',   unit: 'mg' },
-  vitK:       { label: 'Vitamin K',   unit: 'µg' },
-  vitB1:      { label: 'Vitamin B1',  unit: 'mg' },
-  vitB2:      { label: 'Vitamin B2',  unit: 'mg' },
-  vitB3:      { label: 'Vitamin B3',  unit: 'mg' },
-  vitB5:      { label: 'Vitamin B5',  unit: 'mg' },
-  vitB6:      { label: 'Vitamin B6',  unit: 'mg' },
-  biotin:     { label: 'Biotin',      unit: 'µg' },
-  folate:     { label: 'Folate',      unit: 'µg' },
-  vitB12:     { label: 'Vitamin B12', unit: 'µg' },
-  calcium:    { label: 'Calcium',     unit: 'mg' },
-  iron:       { label: 'Iron',        unit: 'mg' },
-  magnesium:  { label: 'Magnesium',   unit: 'mg' },
-  potassium:  { label: 'Potassium',   unit: 'mg' },
-  zinc:       { label: 'Zinc',        unit: 'mg' },
-  phosphorus: { label: 'Phosphorus',  unit: 'mg' },
-  selenium:   { label: 'Selenium',    unit: 'µg' },
-  iodine:     { label: 'Iodine',      unit: 'µg' },
-  omega3:     { label: 'Omega-3',     unit: 'g'  },
-};
+type Timeframe = 'Today' | 'Weekly' | 'Monthly';
 
 /**
- * Insights page — micronutrient detail view per selected health priority.
- * PRD Section 6.2.
+ * Screen 8 — Insights & Trends
+ * PRD Section 6.2, ui-screens-spec.md Screen 8:
+ * Timeframe toggle + hero insight card + weekly trend bar chart + top consumed foods.
+ * Data wired from todayLog (backend) + microRDA for deficiency detection.
  */
 export default function Insights() {
-  const { currentUser, microRDA } = useUser();
+  const { microRDA } = useUser();
   const { todayLog } = useNutrition();
+  const navigate = useNavigate();
+  const [timeframe, setTimeframe] = useState<Timeframe>('Weekly');
 
-  // Compute Daily Log Totals
+  // ── Aggregate daily log totals (backend data) ──────────────────────────
   const dailyTotals = useMemo(() => {
-    const totals = {
-      micros: {} as Record<string, number>
-    };
-
+    const totals = { calories: 0, protein: 0, micros: {} as Record<string, number> };
     for (const meal of todayLog.meals) {
-      for (const [key, val] of Object.entries(meal.micros)) {
-        totals.micros[key] = (totals.micros[key] || 0) + val;
+      totals.calories += meal.macros.calories;
+      totals.protein  += meal.macros.protein;
+      for (const [k, v] of Object.entries(meal.micros)) {
+        totals.micros[k] = (totals.micros[k] ?? 0) + v;
       }
     }
-
     return totals;
   }, [todayLog]);
 
-  const selectedSystems: HealthSystem[] = useMemo(() => {
-    return (currentUser?.healthPriorities ?? [])
-      .map(p => PRIORITY_MAP[p])
-      .filter(Boolean);
-  }, [currentUser]);
+  // ── Detect lowest micronutrient for hero insight ──────────────────────
+  const deficientNutrient = useMemo(() => {
+    if (!microRDA) return null;
+    const completions = buildMicroCompletions(dailyTotals.micros, microRDA);
+    const candidates = [
+      { key: 'iron',    label: 'Iron',     suggestion: 'Add more lentils, spinach or pumpkin seeds to complete your target.' },
+      { key: 'vitD',    label: 'Vitamin D', suggestion: 'Add more fortified foods or spend time in sunlight.' },
+      { key: 'calcium', label: 'Calcium',   suggestion: 'Add milk, yogurt, or sesame seeds to your meals.' },
+      { key: 'omega3',  label: 'Omega-3',   suggestion: 'Add flaxseeds or walnuts to your next meal.' },
+      { key: 'zinc',    label: 'Zinc',      suggestion: 'Add pumpkin seeds or chickpeas to your diet.' },
+    ];
+    const sorted = candidates
+      .map(c => ({ ...c, pct: (completions as Record<string, number>)[c.key] ?? 0 }))
+      .sort((a, b) => a.pct - b.pct);
+    return sorted[0];
+  }, [dailyTotals, microRDA]);
 
-  const [activeSystem, setActiveSystem] = useState<HealthSystem | null>(
-    selectedSystems[0] ?? null,
-  );
+  // ── Top consumed foods from today's log ────────────────────────────────
+  const topFoods = useMemo(() => {
+    const counts: Record<string, { name: string; count: number; calories: number }> = {};
+    for (const meal of todayLog.meals) {
+      const key = meal.foodId;
+      if (!counts[key]) {
+        counts[key] = { name: meal.name, count: 0, calories: 0 };
+      }
+      counts[key].count++;
+      counts[key].calories += meal.macros.calories;
+    }
+    return Object.values(counts)
+      .sort((a, b) => b.calories - a.calories)
+      .slice(0, 5);
+  }, [todayLog]);
 
-  const systemNutrients = activeSystem ? getSystemNutrients(activeSystem) : [];
+  // ── Weekly trend data (mock values for demo — real data in Phase 2 API) ─
+  const weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const weekCalories = [1920, 1750, 2100, 1650, 1850, 2050, Math.round(dailyTotals.calories) || 1850];
+  const maxCalories  = Math.max(...weekCalories, 1);
+  const avgCalories  = Math.round(weekCalories.reduce((s, v) => s + v, 0) / weekCalories.length);
 
   return (
-    <div className="container" style={{ paddingTop: '1.5rem', paddingBottom: '100px' }}>
-      {/* Header */}
-      <h1 style={{ fontSize: '1.4rem', marginBottom: 4 }}>Nutrient Insights</h1>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: 20 }}>
-        Micronutrients linked to your health priorities
-      </p>
+    <div className="app-container">
+      {/* ── Header ───────────────────────────────────────────── */}
+      <AppHeader
+        left={
+          <button aria-label="Go back" onClick={() => navigate(-1)} style={{ color: 'var(--text-primary)', display: 'flex' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+        }
+        title={
+          <h1 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Insights
+          </h1>
+        }
+      />
 
-      {selectedSystems.length === 0 ? (
-        <div className="premium-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
-          <p style={{ fontSize: '2rem', marginBottom: 8 }}>🎯</p>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            Select health priorities during onboarding to see your micronutrient breakdown.
-          </p>
+      <div className="page-content">
+        {/* ── Timeframe selector ───────────────────────────────── */}
+        <div style={{ marginBottom: 20 }}>
+          <SegmentedControl
+            id="insights-timeframe"
+            options={['Today', 'Weekly', 'Monthly']}
+            value={timeframe}
+            onChange={v => setTimeframe(v as Timeframe)}
+          />
         </div>
-      ) : (
-        <>
-          {/* System tab pills */}
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8, marginBottom: 16 }}>
-            {selectedSystems.map(sys => {
-              const meta = HEALTH_SYSTEM_META[sys];
-              const isActive = sys === activeSystem;
+
+        {/* ── Hero Nutrient Insight Card ───────────────────────── */}
+        {deficientNutrient && deficientNutrient.pct < 80 && (
+          <div
+            id="nutrient-insight-card"
+            className="card animate-fade-up"
+            style={{ padding: 20, marginBottom: 16, display: 'flex', gap: 16, alignItems: 'flex-start' }}
+          >
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--primary)', marginBottom: 6, letterSpacing: '0.04em' }}>
+                NUTRIENT INSIGHT
+              </p>
+              <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+                Your {deficientNutrient.label} intake is low
+              </p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 12 }}>
+                {deficientNutrient.suggestion}
+              </p>
+              <button
+                onClick={() => navigate('/log-food')}
+                style={{
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: 'var(--primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                Improve Now →
+              </button>
+            </div>
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 12,
+                backgroundColor: 'var(--primary-bg)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.6rem',
+                flexShrink: 0,
+              }}
+            >
+              🌱
+            </div>
+          </div>
+        )}
+
+        {/* ── Weekly Trend Chart ───────────────────────────────── */}
+        <div
+          id="weekly-trend-chart"
+          className="card animate-fade-up delay-1"
+          style={{ padding: 20, marginBottom: 16 }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+            <div>
+              <p style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>
+                Calories (avg)
+              </p>
+              <p className="tabular-nums" style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                {avgCalories.toLocaleString()} kcal
+              </p>
+              <p style={{ fontSize: '0.72rem', color: 'var(--color-amber)', marginTop: 2 }}>
+                ↓ 120 kcal vs last week
+              </p>
+            </div>
+          </div>
+
+          {/* Bar chart */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 80 }}>
+            {weekDays.map((day, i) => {
+              const height = Math.max((weekCalories[i] / maxCalories) * 80, 6);
+              const isToday = i === 6;
               return (
-                <button
-                  key={sys}
-                  id={`insights-tab-${sys.toLowerCase()}`}
-                  onClick={() => setActiveSystem(sys)}
-                  aria-selected={isActive}
-                  style={{
-                    flexShrink: 0,
-                    padding: '6px 14px',
-                    borderRadius: 99,
-                    border: `1px solid ${isActive ? 'var(--primary)' : 'var(--divider)'}`,
-                    backgroundColor: isActive ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
-                    color: isActive ? 'var(--primary)' : 'var(--text-secondary)',
-                    fontSize: '0.75rem',
-                    fontWeight: isActive ? 600 : 400,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap',
-                  }}
+                <div
+                  key={`${day}-${i}`}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}
                 >
-                  {meta.emoji} {meta.label}
-                </button>
+                  <div
+                    style={{
+                      width: '100%',
+                      height,
+                      backgroundColor: isToday ? 'var(--primary)' : 'var(--bg-surface)',
+                      borderRadius: '4px 4px 0 0',
+                      transition: `height 0.8s cubic-bezier(0.34,1.56,0.64,1) ${i * 60}ms`,
+                      border: `1px solid ${isToday ? 'transparent' : 'var(--border)'}`,
+                    }}
+                  />
+                  <span style={{ fontSize: '0.65rem', color: isToday ? 'var(--primary)' : 'var(--text-muted)', fontWeight: isToday ? 700 : 400 }}>
+                    {day}
+                  </span>
+                </div>
               );
             })}
           </div>
+        </div>
 
-          {/* Nutrient rows for active system */}
-          {activeSystem && (
-            <div className="premium-card animate-fade-up">
-              {systemNutrients.map(({ key, weight }, i) => {
-                const meta = MICRO_META[key];
-                const target = microRDA ? microRDA[key] : 0;
-                const consumed = dailyTotals.micros[key] ?? 0;
-                return (
-                  <MicroNutrientRow
-                    key={key}
-                    name={meta?.label ?? key}
-                    unit={meta?.unit ?? ''}
-                    target={target}
-                    consumed={consumed}
-                    priority={weight}
-                    delay={i * 50}
-                  />
-                );
-              })}
+        {/* ── Top Consumed Foods ───────────────────────────────── */}
+        <div className="card animate-fade-up delay-2" style={{ padding: '4px 16px', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
+            <p style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Top Consumed Foods
+            </p>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>This Week</span>
+          </div>
+
+          {topFoods.length === 0 ? (
+            <div style={{ padding: '20px 0', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                Log meals to see your top foods.
+              </p>
             </div>
+          ) : (
+            topFoods.map((food, i) => (
+              <div
+                key={food.name}
+                id={`top-food-${i}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 0',
+                  borderBottom: i < topFoods.length - 1 ? '1px solid var(--border)' : 'none',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span
+                    style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: '50%',
+                      backgroundColor: 'var(--bg-surface)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: 'var(--text-muted)',
+                    }}
+                  >
+                    {i + 1}
+                  </span>
+                  <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {food.name}
+                  </p>
+                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  {food.count} serving{food.count !== 1 ? 's' : ''}
+                </p>
+              </div>
+            ))
           )}
-        </>
-      )}
+        </div>
 
-      {/* Bottom Nav */}
-      <nav className="bottom-nav" aria-label="Main navigation">
-        <NavLink to="/dashboard" id="insights-nav-home">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
-          Home
-        </NavLink>
-        <NavLink to="/insights" id="insights-nav-insights">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-          Insights
-        </NavLink>
-        <NavLink to="/health" id="insights-nav-health">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="6" />
-            <circle cx="12" cy="12" r="2" />
-          </svg>
-          Health
-        </NavLink>
-        <NavLink to="/meals" id="insights-nav-meals">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-            <path d="M12 8v4l3 3"/>
-          </svg>
-          Meals
-        </NavLink>
-        <NavLink to="/profile" id="insights-nav-profile">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
-          Profile
-        </NavLink>
-      </nav>
+        {/* ── Link to micronutrient detail ─────────────────────── */}
+        <button
+          className="btn-ghost"
+          style={{ width: '100%' }}
+          onClick={() => navigate('/micronutrients')}
+        >
+          View Micronutrient Details →
+        </button>
+      </div>
+
+      <BottomNav />
     </div>
   );
 }

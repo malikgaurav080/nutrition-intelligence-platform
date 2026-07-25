@@ -2,7 +2,7 @@
 
 Reference Image: [`docs/assets/UI.png`](./assets/UI.png)
 
-This document breaks down the exact layout, component architecture, visual elements, and interactive states for all 9 screens extracted from the reference design.
+This document breaks down the exact layout, component architecture, visual elements, and interactive states for all screens extracted from the reference design.
 
 ---
 
@@ -32,7 +32,9 @@ This document breaks down the exact layout, component architecture, visual eleme
     - 🦴 Bones (82%)
     - 💪 Muscle (87%)
 - **Bottom Navigation Bar**:
-  - Fixed floating glass bar with 5 tabs: Home (Active), Meals, Floating `(+)` Action Button (Center), Progress, Profile
+  - Fixed floating glass bar with 5 tabs: Home (Active), Meals, Floating `(+)` Action Button (Center), Progress, Reports
+  - Top-left corner (in AppHeader): Merged Profile Avatar + Hamburger Menu Badge button (38×38px circular user avatar with overlapping circular white badge at bottom-right containing 3-line menu bar icon) — tapping opens the Profile Drawer
+  - Top-right corner (in AppHeader): Notification bell icon with badge dot (default right slot)
 
 ---
 
@@ -155,21 +157,61 @@ This document breaks down the exact layout, component architecture, visual eleme
 
 ---
 
-## 9. 👤 Profile & Settings (`/profile`)
+## 9. 📊 Reports (`/reports`)
+
+> **Navigation change:** This screen replaces the former "Profile" tab in the bottom navigation bar. The 5th bottom-nav tab is now **"Reports"** (bar-chart icon). Profile is accessed via the top-right circular user avatar in `AppHeader`.
 
 ### Layout & Sections
-- **Header**: Back arrow, Title `"Profile"`, Settings gear
-- **User Profile Header Card**:
-  - Avatar picture + Edit icon
-  - Name: `"Gaurav Malik"`
-  - User ID: `malikgaurav080`
-  - Membership Badge: `Gold (Expiring 27th August)`
-- **Navigation Options**:
-  - Edit Profile
-  - Workout AI Plan
-  - Blood Health Analysis
-  - Your Personal Trainer
-  - AI Nutrition Coach
-  - Account & Settings
-  - Safety Centre
-  - Help & Support
+- **Header**: Hamburger menu icon (Left), Title `"Reports"` (Center), Date-range picker icon (Right)
+- **Timeframe Segmented Toggle**: `Weekly` (Active) | `Monthly` | `All Time`
+- **Summary Stats Row (3 cards, horizontal)**:
+  - Avg Daily Calories: `1,850 kcal`
+  - Best Nutrition Score: `94`
+  - Days Tracked: `18`
+- **Macro Trend Chart**:
+  - Grouped bar chart — Protein (Blue) / Carbs (Amber) / Fat (Red) across days
+  - X-axis: day labels (M, T, W, T, F, S, S)
+  - Y-axis: grams
+- **Nutrition Score Timeline**:
+  - Bar chart showing daily overall score (0–100) for the selected period
+  - Today's bar highlighted in emerald green; others in light grey
+- **Health System Breakdown Card**:
+  - Horizontal list of all user-selected health systems + their average score % for the period
+  - Color-coded bars (green ≥70%, amber 50–69%, red <50%)
+- **Micronutrient Summary**:
+  - Top 5 consistently-deficient nutrients across the period
+  - Row format: Nutrient name + avg completion % + colored bar
+
+---
+
+## 10. 👤 Profile Drawer (Slide-in Panel)
+
+> **Not a standalone route.** This is a **slide-in drawer** that overlays any screen. It is opened by tapping the **circular user avatar button** in the top-left of `AppHeader` (next to the menu bar icon, visible across all protected screens).
+
+### Trigger
+- A merged **Profile Avatar + Hamburger Menu Badge button** is rendered in the **left slot** of `AppHeader`. It consists of a 38×38px circular avatar with user initials/photo and an overlapping circular light badge (20×20px) at the bottom-right containing a 3-line hamburger menu bar icon.
+- Tapping this merged button opens the Profile Drawer from the right.
+- The default **right slot** of `AppHeader` retains the notification bell icon with badge dot.
+- A semi-transparent dark overlay appears behind the drawer; tapping it closes the drawer.
+
+### Drawer Panel Layout
+- **Width**: 80vw (max 320px), full viewport height
+- **Background**: `var(--bg-card)` white
+- **Slide animation**: Translates in from `translateX(100%)` → `translateX(0)` over 280ms ease
+- **Header**:
+  - Close (×) button — top-right of drawer
+  - Circular avatar (56×56px, initials, emerald gradient) + ✏️ Edit icon overlay
+  - Name: user's full name
+  - User ID: email prefix (e.g. `malikgaurav080`)
+  - Membership Badge: `⭐ Pro Max Member` (amber pill) — `Expiring on 27th August`
+- **Navigation Options List** (each row: icon + label + chevron):
+  - ✏️ Edit Profile
+  - 🏋️ Workout AI Plan
+  - 🩸 Blood Health Analysis
+  - 🧑‍💼 Your Personal Trainer
+  - 🤖 AI Nutrition Coach
+  - ⚙️ Account & Settings
+  - 🛡️ Safety Centre
+  - ❓ Help & Support
+- **User Stats Row**: Goal | Activity | Diet type (compact 3-column mini-cards)
+- **Sign Out button**: Red ghost button at the bottom of the drawer
