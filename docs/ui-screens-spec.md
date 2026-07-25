@@ -99,18 +99,30 @@ This document breaks down the exact layout, component architecture, visual eleme
 
 ---
 
-## 5. 🍲 Generated Meal Plan (`/meal-plan`)
+## 5. 🍲 Generated Meal Plan (`/meal-plan` & `/meals`)
 
 ### Layout & Sections
 - **Header**: Back arrow, Title `"Meal Plan"`, Filter icon
-- **Plan Summary Banner**: `"High Protein Plan (2,200 kcal • 145g Protein)"`
-- **Food Thumbnails Carousel**
-- **Plan Meal Slot Cards**:
-  - Breakfast: Greek Yogurt Bowl (`480 kcal`)
-  - Lunch: Quinoa Buddha Bowl (`650 kcal`)
-  - Dinner: Grilled Chicken & Veggies (`560 kcal`)
-  - Snacks: Almonds & Banana (`200 kcal`)
-- **Sticky CTA**: `"Generate New Plan"` green button
+- **Active Plan Top Banner**: Premium dark emerald gradient card (`rgba(6, 78, 59, 0.95)` → `rgba(6, 95, 70, 0.95)`) featuring:
+  - Active status indicator: `🌟 Active Plan` with glowing green dot
+  - Active Plan Name: `Plan 1` (or active plan title)
+  - `🔄 Switch Plan` / `✕ Close` pill button to toggle the interactive Plan Selector card
+- **Interactive Plan Selector Card** (expanded when `Switch Plan` is tapped):
+  - Header: `"Select a Meal Plan to View or Switch"` title with close (`✕`) icon button
+  - List of saved plan cards (`Plan 1`, `Plan 2`, `Plan 3`) with calorie & protein metrics
+  - Highlighted `Active Plan ✓` badge for the active plan
+  - Direct `Set Active` action button per plan for instant 1-tap activation
+  - Prominent `➕ Create New Plan (1/3)` dashed button (available when total saved plans < 3) to trigger generation and save a new plan
+- **Plan Summary Banner**: Dark emerald gradient card (`#064E3B` → `#065F46`) displaying plan name (`Plan 1`), subtitle (`High Protein Plan`), total calories & protein (`1,850 kcal · 120g Protein`)
+- **Nutrient Gap Alerts Card**: Amber warning container (`var(--color-amber-bg)`) listing audited nutrient deficiencies in the plan
+- **Meal Slot Cards**:
+  - `Breakfast` ☀️: Slot icon & title, total calories, food items list (name, serving count, calories), and `Log Slot` action button
+  - `Lunch` 🌤️: Slot icon & title, total calories, food items list (name, serving count, calories), and `Log Slot` action button
+  - `Snacks` 🍎: Slot icon & title, total calories, food items list (name, serving count, calories), and `Log Slot` action button
+  - `Dinner` 🌙: Slot icon & title, total calories, food items list (name, serving count, calories), and `Log Slot` action button
+- **Plan Actions Row**: Interactive plan control buttons (`⚡ Set Active` / `Active Plan ✓` and `🗑️ Delete Plan` or `💾 Save As New Plan`)
+- **Smart Adjustments Card**: Card displaying AI/engine nutrient optimization recommendations (`💡 Smart Adjustments`)
+- **Sticky CTA**: Fixed bottom action button (`🔄 Generate New Plan`) to shuffle or generate alternative recommendations
 
 ---
 
