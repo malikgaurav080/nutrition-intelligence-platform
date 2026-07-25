@@ -96,7 +96,7 @@ export default function MealPlan() {
   };
 
   // ── Log an entire slot from generated plan via API ────────────────────
-  const handleLogSlot = async (slot: LoggedFood['slot'], items: RecommendedMeal['items']) => {
+  const handleLogSlot = async (slot: LoggedFood['slot'], items: any[]) => {
     const success = await logSlotFromPlan(slot, items);
     if (success) {
       setSaveMsg(`${slot} logged successfully!`);
@@ -300,22 +300,27 @@ export default function MealPlan() {
 
                   {/* Food items */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {meal.items.map(item => (
-                      <div
-                        key={item.food.id}
-                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                      >
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>
-                          {item.food.name}
-                          <span style={{ color: 'var(--text-muted)', marginLeft: 4 }}>
-                            ×{item.loggedQty}
+                    {meal.items.map((item: any) => {
+                      const foodName = item.food ? item.food.name : item.name;
+                      const cals = item.food ? item.food.macros.calories : (item.macros?.calories ?? 0);
+                      const itemKey = item.food ? item.food.id : (item.foodId ?? item.name);
+                      return (
+                        <div
+                          key={itemKey}
+                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>
+                            {foodName}
+                            <span style={{ color: 'var(--text-muted)', marginLeft: 4 }}>
+                              ×{item.loggedQty}
+                            </span>
+                          </p>
+                          <span className="tabular-nums" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {Math.round(cals * item.loggedQty)} kcal
                           </span>
-                        </p>
-                        <span className="tabular-nums" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                          {Math.round(item.food.macros.calories * item.loggedQty)} kcal
-                        </span>
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

@@ -131,7 +131,6 @@ export default function Reports() {
   }, [completions]);
 
   // ── Chart dimensions ──────────────────────────────────────────────────
-  const _maxCalChart  = Math.max(...weekCalories, 1); // reserved for future use
   const maxScoreChart = 100;
 
   return (

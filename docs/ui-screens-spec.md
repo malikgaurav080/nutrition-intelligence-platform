@@ -88,12 +88,9 @@ This document breaks down the exact layout, component architecture, visual eleme
 - **Header**: Back arrow, Title `"Micronutrients"`, Search icon
 - **Tabs**: `Vitamins` | `Minerals`
 - **Nutrient Rows with Fraction & Bar**:
-  - Vitamin A: `850 / 900 µg` (94%)
-  - Vitamin C: `72 / 90 mg` (80%)
-  - Vitamin D: `15 / 15 µg` (100%)
-  - Iron: `8.5 / 18 mg` (47% - Amber)
-  - Calcium: `820 / 1000 mg` (82%)
-  - Vitamin B12: `2.4 / 2.4 µg` (100%)
+  - Distinct nutrient icon badges for every vitamin & mineral (e.g., 👁️ Vitamin A, 🍊 Vitamin C, ☀️ Vitamin D, 🥩 Vitamin B12, 🦴 Calcium, 🩸 Iron, ⚡ Magnesium, 🛡️ Zinc, 🐟 Omega-3) with themed accent container styling
+  - Numeric intake fraction (`850 / 900 µg`) & bold percentage score (`94%`)
+  - Color-coded progress bar (emerald ≥80%, amber ≥50%, red <50%)
 - **CTA**: `"View All Micronutrients"` button
 
 ---

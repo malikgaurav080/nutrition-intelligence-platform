@@ -8,28 +8,28 @@ import BottomNav from '../components/layout/BottomNav';
 import SegmentedControl from '../components/ui/SegmentedControl';
 import ProgressBar from '../components/ui/ProgressBar';
 
-/** Micro label, unit and category map */
-const MICRO_DISPLAY: Record<string, { label: string; unit: string; category: 'vitamin' | 'mineral' }> = {
-  vitA:       { label: 'Vitamin A',   unit: 'µg',  category: 'vitamin'  },
-  vitC:       { label: 'Vitamin C',   unit: 'mg',  category: 'vitamin'  },
-  vitD:       { label: 'Vitamin D',   unit: 'µg',  category: 'vitamin'  },
-  vitE:       { label: 'Vitamin E',   unit: 'mg',  category: 'vitamin'  },
-  vitK:       { label: 'Vitamin K',   unit: 'µg',  category: 'vitamin'  },
-  vitB1:      { label: 'Vitamin B1',  unit: 'mg',  category: 'vitamin'  },
-  vitB2:      { label: 'Vitamin B2',  unit: 'mg',  category: 'vitamin'  },
-  vitB6:      { label: 'Vitamin B6',  unit: 'mg',  category: 'vitamin'  },
-  vitB12:     { label: 'Vitamin B12', unit: 'µg',  category: 'vitamin'  },
-  folate:     { label: 'Folate',      unit: 'µg',  category: 'vitamin'  },
-  biotin:     { label: 'Biotin',      unit: 'µg',  category: 'vitamin'  },
-  calcium:    { label: 'Calcium',     unit: 'mg',  category: 'mineral'  },
-  iron:       { label: 'Iron',        unit: 'mg',  category: 'mineral'  },
-  magnesium:  { label: 'Magnesium',   unit: 'mg',  category: 'mineral'  },
-  potassium:  { label: 'Potassium',   unit: 'mg',  category: 'mineral'  },
-  zinc:       { label: 'Zinc',        unit: 'mg',  category: 'mineral'  },
-  phosphorus: { label: 'Phosphorus',  unit: 'mg',  category: 'mineral'  },
-  selenium:   { label: 'Selenium',    unit: 'µg',  category: 'mineral'  },
-  iodine:     { label: 'Iodine',      unit: 'µg',  category: 'mineral'  },
-  omega3:     { label: 'Omega-3',     unit: 'g',   category: 'mineral'  },
+/** Micro label, unit, category and icon map */
+const MICRO_DISPLAY: Record<string, { label: string; unit: string; category: 'vitamin' | 'mineral'; icon: string; bg: string }> = {
+  vitA:       { label: 'Vitamin A',   unit: 'µg',  category: 'vitamin', icon: '👁️', bg: 'rgba(245, 158, 11, 0.12)' },
+  vitC:       { label: 'Vitamin C',   unit: 'mg',  category: 'vitamin', icon: '🍊', bg: 'rgba(249, 115, 22, 0.12)' },
+  vitD:       { label: 'Vitamin D',   unit: 'µg',  category: 'vitamin', icon: '☀️', bg: 'rgba(234, 179, 8, 0.12)'  },
+  vitE:       { label: 'Vitamin E',   unit: 'mg',  category: 'vitamin', icon: '🥑', bg: 'rgba(34, 197, 94, 0.12)'  },
+  vitK:       { label: 'Vitamin K',   unit: 'µg',  category: 'vitamin', icon: '🥬', bg: 'rgba(16, 185, 129, 0.12)' },
+  vitB1:      { label: 'Vitamin B1',  unit: 'mg',  category: 'vitamin', icon: '🌾', bg: 'rgba(217, 119, 6, 0.12)'  },
+  vitB2:      { label: 'Vitamin B2',  unit: 'mg',  category: 'vitamin', icon: '🥛', bg: 'rgba(59, 130, 246, 0.12)' },
+  vitB6:      { label: 'Vitamin B6',  unit: 'mg',  category: 'vitamin', icon: '🍌', bg: 'rgba(234, 179, 8, 0.12)'  },
+  vitB12:     { label: 'Vitamin B12', unit: 'µg',  category: 'vitamin', icon: '🥩', bg: 'rgba(239, 68, 68, 0.12)'  },
+  folate:     { label: 'Folate',      unit: 'µg',  category: 'vitamin', icon: '🥗', bg: 'rgba(16, 185, 129, 0.12)' },
+  biotin:     { label: 'Biotin',      unit: 'µg',  category: 'vitamin', icon: '💇', bg: 'rgba(236, 72, 153, 0.12)' },
+  calcium:    { label: 'Calcium',     unit: 'mg',  category: 'mineral', icon: '🦴', bg: 'rgba(100, 116, 139, 0.12)' },
+  iron:       { label: 'Iron',        unit: 'mg',  category: 'mineral', icon: '🩸', bg: 'rgba(225, 29, 72, 0.12)'  },
+  magnesium:  { label: 'Magnesium',   unit: 'mg',  category: 'mineral', icon: '⚡', bg: 'rgba(147, 51, 234, 0.12)' },
+  potassium:  { label: 'Potassium',   unit: 'mg',  category: 'mineral', icon: '🍌', bg: 'rgba(234, 179, 8, 0.12)'  },
+  zinc:       { label: 'Zinc',        unit: 'mg',  category: 'mineral', icon: '🛡️', bg: 'rgba(16, 185, 129, 0.12)' },
+  phosphorus: { label: 'Phosphorus',  unit: 'mg',  category: 'mineral', icon: '🔋', bg: 'rgba(6, 182, 212, 0.12)'  },
+  selenium:   { label: 'Selenium',    unit: 'µg',  category: 'mineral', icon: '🌰', bg: 'rgba(180, 83, 9, 0.12)'   },
+  iodine:     { label: 'Iodine',      unit: 'µg',  category: 'mineral', icon: '🦋', bg: 'rgba(99, 102, 241, 0.12)' },
+  omega3:     { label: 'Omega-3',     unit: 'g',   category: 'mineral', icon: '🐟', bg: 'rgba(14, 165, 233, 0.12)' },
 };
 
 function barColor(pct: number): string {
@@ -75,6 +75,8 @@ export default function Micronutrients() {
       key,
       label: meta.label,
       unit: meta.unit,
+      icon: meta.icon,
+      bg: meta.bg,
       target: microRDA?.[key as keyof typeof microRDA] ?? 0,
       consumed: consumedMicros[key] ?? 0,
       pct: Math.round((completions as Record<string, number>)[key] ?? 0),
@@ -129,7 +131,7 @@ export default function Micronutrients() {
               </p>
             </div>
           ) : (
-            displayed.map(({ key, label, unit, target, consumed, pct }, i) => (
+            displayed.map(({ key, label, unit, icon, bg, target, consumed, pct }, i) => (
               <div
                 key={key}
                 id={`micro-row-${key}`}
@@ -141,11 +143,29 @@ export default function Micronutrients() {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {label}
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {/* Nutrient Icon Badge Container */}
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 'var(--radius-md)',
+                        backgroundColor: bg,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.1rem',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {icon}
+                    </div>
+                    <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {label}
+                    </p>
+                  </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span className="tabular-nums" style={{ fontSize: '0.8rem', fontWeight: 700, color: barColor(pct) }}>
+                    <span className="tabular-nums" style={{ fontSize: '0.82rem', fontWeight: 700, color: barColor(pct) }}>
                       {pct}%
                     </span>
                     <p className="tabular-nums" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
