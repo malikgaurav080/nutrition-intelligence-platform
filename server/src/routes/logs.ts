@@ -11,11 +11,11 @@ router.get('/:date', protect, async (req: AuthRequest, res: Response): Promise<a
   try {
     const { date } = req.params;
     const userId = req.user?.id;
-    
+
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
-    
+
     // Simple date format regex validation: YYYY-MM-DD
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return res.status(400).json({ message: 'Invalid date format. Use YYYY-MM-DD' });
@@ -66,27 +66,25 @@ router.post('/food', protect, async (req: AuthRequest, res: Response): Promise<a
       });
     }
 
-    // Check if food item already logged in this exact slot; if so, replace/update, otherwise push
+    // Check if food item already logged in this exact slot; if so, accumulate loggedQty
     const existingIndex = log.meals.findIndex(
       (m) => m.slot === slot && m.foodId === foodId
     );
 
-    const mealData = {
-      slot,
-      foodId,
-      name,
-      servingSize,
-      servingUnit,
-      baseQty,
-      loggedQty,
-      macros,
-      micros
-    };
-
     if (existingIndex > -1) {
-      log.meals[existingIndex] = mealData as any;
+      log.meals[existingIndex].loggedQty += loggedQty;
     } else {
-      log.meals.push(mealData as any);
+      log.meals.push({
+        slot,
+        foodId,
+        name,
+        servingSize,
+        servingUnit,
+        baseQty,
+        loggedQty,
+        macros,
+        micros
+      } as any);
     }
 
     await log.save();
@@ -189,7 +187,7 @@ router.post('/bulk-food', protect, async (req: AuthRequest, res: Response): Prom
 
     // Overwrite the current meals list with the new batch
     log.meals = meals as any;
-    
+
     await log.save();
     res.json(log);
   } catch (error) {
@@ -224,7 +222,7 @@ router.post('/bulk-slot', protect, async (req: AuthRequest, res: Response): Prom
       });
     }
 
-    // Clean out existing items in this slot
+    // Clean out existing items in this slot so logging sets the slot's items cleanly
     log.meals = log.meals.filter(m => m.slot !== slot) as any;
 
     // Add new batch of items for this slot

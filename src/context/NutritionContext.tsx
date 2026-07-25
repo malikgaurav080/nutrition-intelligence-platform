@@ -135,6 +135,23 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return false;
     }
 
+    const qty = loggedQty ?? 1;
+    const rawMacros = foodItem.macros || {};
+    const rawMicros = foodItem.micros || {};
+
+    const scaledMacros = {
+      calories: Math.round((rawMacros.calories ?? 0) * qty),
+      protein: Math.round((rawMacros.protein_g ?? rawMacros.protein ?? 0) * qty),
+      carbs: Math.round((rawMacros.carbs_g ?? rawMacros.carbs ?? 0) * qty),
+      fat: Math.round((rawMacros.fat_g ?? rawMacros.fat ?? 0) * qty),
+      fiber: Math.round((rawMacros.fiber_g ?? rawMacros.fiber ?? 0) * qty),
+    };
+
+    const scaledMicros: Record<string, number> = {};
+    for (const [k, v] of Object.entries(rawMicros)) {
+      scaledMicros[k] = Math.round((v as number) * qty * 10) / 10;
+    }
+
     try {
       const response = await fetch('/api/logs/food', {
         method: 'POST',
@@ -150,9 +167,9 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           servingSize: foodItem.servingSize,
           servingUnit: foodItem.servingUnit,
           baseQty: foodItem.baseQty ?? 1,
-          loggedQty,
-          macros: foodItem.macros,
-          micros: foodItem.micros
+          loggedQty: qty,
+          macros: scaledMacros,
+          micros: scaledMicros
         })
       });
 
@@ -296,7 +313,8 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setSavedPlans(data);
         const active = data.find((p: any) => p.isActive) || null;
         setActivePlan(active);
-        return { success: true };
+        const newPlan = data.find((p: any) => p.name === name) || data[data.length - 1];
+        return { success: true, plans: data, newPlanId: newPlan?._id };
       } else {
         return {
           success: false,
@@ -368,15 +386,32 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const formattedItems = items.map((item: any) => {
       const foodObj = item.food || item;
+      const qty = item.loggedQty ?? 1;
+      const rawMacros = item.macros || foodObj.macros || {};
+      const rawMicros = item.micros || foodObj.micros || {};
+
+      const scaledMacros = {
+        calories: Math.round((rawMacros.calories ?? 0) * qty),
+        protein: Math.round((rawMacros.protein_g ?? rawMacros.protein ?? 0) * qty),
+        carbs: Math.round((rawMacros.carbs_g ?? rawMacros.carbs ?? 0) * qty),
+        fat: Math.round((rawMacros.fat_g ?? rawMacros.fat ?? 0) * qty),
+        fiber: Math.round((rawMacros.fiber_g ?? rawMacros.fiber ?? 0) * qty),
+      };
+
+      const scaledMicros: Record<string, number> = {};
+      for (const [k, v] of Object.entries(rawMicros)) {
+        scaledMicros[k] = Math.round((v as number) * qty * 10) / 10;
+      }
+
       return {
         foodId: item.foodId || foodObj.id || foodObj.foodId,
         name: item.name || foodObj.name,
         servingSize: item.servingSize || foodObj.servingSize,
         servingUnit: item.servingUnit || foodObj.servingUnit,
         baseQty: item.baseQty ?? foodObj.baseQty ?? 1,
-        loggedQty: item.loggedQty ?? 1,
-        macros: item.macros || foodObj.macros,
-        micros: item.micros || foodObj.micros
+        loggedQty: qty,
+        macros: scaledMacros,
+        micros: scaledMicros
       };
     });
 

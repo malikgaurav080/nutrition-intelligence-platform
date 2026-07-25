@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import {
   Splash, SignUp, Login,
   Dashboard, Meals, Health, Insights, Profile, Reports,
-  Micronutrients, MealPlan, LogFood,
+  Micronutrients, MealPlan, GeneratePlan, LogFood,
 } from './pages';
 import { UserProvider } from './context/UserContext.tsx';
 import { NutritionProvider } from './context/NutritionContext.tsx';
@@ -60,6 +60,10 @@ function App() {
             <Route
               path="/log-food"
               element={<ProtectedRoute><LogFood /></ProtectedRoute>}
+            />
+            <Route
+              path="/generate-plan"
+              element={<ProtectedRoute><GeneratePlan /></ProtectedRoute>}
             />
 
             {/* Catch-all fallback */}

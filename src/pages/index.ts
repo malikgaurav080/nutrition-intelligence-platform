@@ -10,4 +10,5 @@ export { default as Reports }         from './Reports';
 export { default as Targets }         from './Targets';
 export { default as Micronutrients }  from './Micronutrients';
 export { default as MealPlan }        from './Meals';
+export { default as GeneratePlan }    from './GeneratePlan';
 export { default as LogFood }         from './LogFood';

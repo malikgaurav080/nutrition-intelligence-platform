@@ -102,27 +102,40 @@ This document breaks down the exact layout, component architecture, visual eleme
 ## 5. 🍲 Generated Meal Plan (`/meal-plan` & `/meals`)
 
 ### Layout & Sections
-- **Header**: Back arrow, Title `"Meal Plan"`, Filter icon
-- **Active Plan Top Banner**: Premium dark emerald gradient card (`rgba(6, 78, 59, 0.95)` → `rgba(6, 95, 70, 0.95)`) featuring:
-  - Active status indicator: `🌟 Active Plan` with glowing green dot
-  - Active Plan Name: `Plan 1` (or active plan title)
-  - `🔄 Switch Plan` / `✕ Close` pill button to toggle the interactive Plan Selector card
-- **Interactive Plan Selector Card** (expanded when `Switch Plan` is tapped):
-  - Header: `"Select a Meal Plan to View or Switch"` title with close (`✕`) icon button
-  - List of saved plan cards (`Plan 1`, `Plan 2`, `Plan 3`) with calorie & protein metrics
-  - Highlighted `Active Plan ✓` badge for the active plan
-  - Direct `Set Active` action button per plan for instant 1-tap activation
-  - Prominent `➕ Create New Plan (1/3)` dashed button (available when total saved plans < 3) to trigger generation and save a new plan
-- **Plan Summary Banner**: Dark emerald gradient card (`#064E3B` → `#065F46`) displaying plan name (`Plan 1`), subtitle (`High Protein Plan`), total calories & protein (`1,850 kcal · 120g Protein`)
+- **Header**: Title `"Meal Plan"` (Clean header without back arrow or filter button)
+- **Unified Meal Plan Banner** (Single merged dark emerald gradient card `#064E3B` → `#065F46`):
+  - **Header Row**: Active status badge (`🌟 Active Plan` with green dot indicator) and `🔄 Switch Plan` / `✕ Close` pill toggle button
+  - **Plan Metrics**: Active Plan Name (`Plan 1`), subtitle (`High Protein Plan`), and total calories & protein (`1,850 kcal · 120g Protein`)
+  - **Integrated Selector Drawer** (expanded inside the card when `Switch Plan` is tapped):
+    - Subheader: `"Select a Meal Plan:"`
+    - List of saved plan options (`Plan 1`, `Plan 2`, `Plan 3`) with calorie/protein stats and active badges / `Set Active` action buttons
+    - Prominent `➕ Create New Plan (1/3)` dashed button (available when total saved plans < 3) to trigger generation and save a new plan
 - **Nutrient Gap Alerts Card**: Amber warning container (`var(--color-amber-bg)`) listing audited nutrient deficiencies in the plan
-- **Meal Slot Cards**:
-  - `Breakfast` ☀️: Slot icon & title, total calories, food items list (name, serving count, calories), and `Log Slot` action button
-  - `Lunch` 🌤️: Slot icon & title, total calories, food items list (name, serving count, calories), and `Log Slot` action button
-  - `Snacks` 🍎: Slot icon & title, total calories, food items list (name, serving count, calories), and `Log Slot` action button
-  - `Dinner` 🌙: Slot icon & title, total calories, food items list (name, serving count, calories), and `Log Slot` action button
+- **Timeline Meal Slot Cards**: Connected vertical gradient timeline track featuring glowing node dots and time badges for each slot:
+  - `Breakfast` ☀️ (`8:00 AM`): Glowing timeline node, slot title, time badge, total slot macros (`kcal · protein · carbs · fat`), food items list with individual macro badges (`🥩 P · 🍞 C · 🥑 F`), and compact circular `+` / `✓` icon button
+  - `Lunch` 🌤️ (`1:00 PM`): Glowing timeline node, slot title, time badge, total slot macros (`kcal · protein · carbs · fat`), food items list with individual macro badges (`🥩 P · 🍞 C · 🥑 F`), and compact circular `+` / `✓` icon button
+  - `Snacks` 🍎 (`4:30 PM`): Glowing timeline node, slot title, time badge, total slot macros (`kcal · protein · carbs · fat`), food items list with individual macro badges (`🥩 P · 🍞 C · 🥑 F`), and compact circular `+` / `✓` icon button
+  - `Dinner` 🌙 (`8:00 PM`): Glowing timeline node, slot title, time badge, total slot macros (`kcal · protein · carbs · fat`), food items list with individual macro badges (`🥩 P · 🍞 C · 🥑 F`), and compact circular `+` / `✓` icon button
 - **Plan Actions Row**: Interactive plan control buttons (`⚡ Set Active` / `Active Plan ✓` and `🗑️ Delete Plan` or `💾 Save As New Plan`)
 - **Smart Adjustments Card**: Card displaying AI/engine nutrient optimization recommendations (`💡 Smart Adjustments`)
-- **Sticky CTA**: Fixed bottom action button (`🔄 Generate New Plan`) to shuffle or generate alternative recommendations
+- **Sticky CTA**: Fixed bottom action button (`🔄 Generate New Plan`) navigating to `/generate-plan`
+
+---
+
+## 5.1. ⚡ Generate & Preview Meal Plan (`/generate-plan`)
+
+### Layout & Sections
+- **Header**: Back arrow (`← Back to Meals`), Title `"Generate New Plan"`
+- **Meal Plan Preview Banner**: Dark emerald gradient card (`#064E3B` → `#065F46`) featuring title `"Generated Meal Plan"`, total calories & protein metrics, and header `🔄 Regenerate` button
+- **Nutrient Gap Audit Card**: Amber warning container (`var(--color-amber-bg)`) listing audited micronutrient deficiencies in the generated draft
+- **Timeline Meal Slot Preview Cards**: Connected vertical timeline track with time badges (8:00 AM, 1:00 PM, 4:30 PM, 8:00 PM) displaying slot macro totals and food items with individual macro badges (`🥩 P · 🍞 C · 🥑 F`, **no Log Slot buttons**)
+- **Sticky Actions Row**:
+  - `🔄 Regenerate` ghost CTA to shuffle and generate alternative recommendations
+  - `💾 Save Meal Plan` primary CTA opening the interactive Save Plan Modal popup
+- **Save Meal Plan Modal Popup** (opened upon clicking `💾 Save Meal Plan`):
+  - **Plan Name Input**: Editable text field (`✏️ Plan Name`, pre-filled with custom name e.g. `Plan 2`)
+  - **Active Plan Toggle Switch**: Checkbox card (`🌟 Set as Active Plan`) setting the plan active upon saving
+  - **Modal Actions**: `Cancel` ghost button and `Save Plan` primary CTA saving to MongoDB and redirecting to `/meals`
 
 ---
 
