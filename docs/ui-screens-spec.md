@@ -13,28 +13,31 @@ This document breaks down the exact layout, component architecture, visual eleme
   - Hamburger menu icon (Left)
   - Greeting header: `"Good Morning Gaurav 👋"` (Center-Left)
   - Notification bell icon with badge (Right)
-- **Hero Card — Overall Nutrition Score**:
-  - Background: Dark Emerald Green gradient (`#064E3B` → `#047857` or dark surface with emerald ring)
-  - Content: Large numeric score (e.g. `92`), status label (`"Excellent"`), subtext (`"↑ 12% vs yesterday"`)
-  - Radial SVG progress ring animating to current score
-- **Today's Progress (2x3 Card Grid)**:
-  - **Calories**: `1,700 / 2,200 kcal` (77%) with dual-color horizontal progress bar
-  - **Protein**: `102 / 145 g` (70%)
-  - **Carbs**: `220 / 275 g` (80%)
-  - **Fat**: `56 / 73 g` (77%)
-  - **Fiber**: `18 / 25 g` (72%)
-  - **Water**: `1.8 / 2.5 L` (72%)
+- **Hero Card — Calorie & Energy Balance**:
+  - Background: Dark Emerald Green gradient (`#064E3B` → `#065F46`)
+  - Calorie progress bar showing Taken Calories (consumed), Target Calories (goal), and Maintenance Calories (TDEE)
+  - Numeric breakdown: `Taken: 1,700 kcal`, `Target: 2,200 kcal`, `Maintenance: 2,450 kcal`
+- **Interactive Water Tracker**:
+  - Responsive 1-row glass SVG icons layout (8–10 glass icons fitting dynamically in a single row on all screen sizes)
+  - Clear SVG glass cup shape with blue fill level indicator for consumed glasses
+  - Tapping `+ Add Glass` or any empty glass adds 250ml and logs directly to DB via backend API
+- **Today's Progress (2x2 Macro Grid)**:
+  - Header: `"Macronutrient Progress"` title on left, `"Micronutrients 💊"` button on right (navigates to `/micronutrients`)
+  - Macro cards feature distinct nutrient icons for enhanced visual scanability:
+    - 🥩 **Protein**: `102 / 145 g` (70%)
+    - 🍞 **Carbs**: `220 / 275 g` (80%)
+    - 🥑 **Fat**: `56 / 73 g` (77%)
+    - 🌿 **Fiber**: `18 / 25 g` (72%)
+  - *(Calories and Water removed from grid as they are featured in Hero & Water sections above)*
 - **Health System Scores (Horizontal Scroll / Badges)**:
-  - Circular icon badges with percentage and title:
-    - 🧠 Brain (91%)
-    - 🛡️ Immunity (74%)
-    - ❤️ Heart (88%)
-    - 🦴 Bones (82%)
-    - 💪 Muscle (87%)
+  - Dynamic circular icon badges displaying the user's selected Health Priorities chosen during registration/onboarding (min 1, max 5)
+  - Each badge features a rounded circular icon background container with themed accent colors, bold percentage completion score (e.g. `91%`), and clean title label (e.g., Brain, Immunity, Heart, Bones, Muscle)
+  - Horizontal scroll container (`pill-tabs`) allowing sleek scannability
+  - Interactive navigation: Tapping any health badge opens the Health Systems detailed view (`/health`)
 - **Bottom Navigation Bar**:
   - Fixed floating glass bar with 5 tabs: Home (Active), Meals, Floating `(+)` Action Button (Center), Progress, Reports
-  - Top-left corner (in AppHeader): Merged Profile Avatar + Hamburger Menu Badge button (38×38px circular user avatar with overlapping circular white badge at bottom-right containing 3-line menu bar icon) — tapping opens the Profile Drawer
-  - Top-right corner (in AppHeader): Notification bell icon with badge dot (default right slot)
+  - Top-left corner (in AppHeader): Merged Profile Avatar + Hamburger Menu Badge button — tapping opens the Profile Drawer
+  - Top-right corner (in AppHeader): Notification bell icon with badge dot
 
 ---
 
@@ -79,24 +82,7 @@ This document breaks down the exact layout, component architecture, visual eleme
 
 ---
 
-## 4. 📊 Nutrition Targets (`/targets`)
-
-### Layout & Sections
-- **Header**: Hamburger menu, Title `"Nutrition Targets"`, Edit button
-- **Segmented Toggle**: `Macros` (Active) | `Micronutrients`
-- **Macro Donut Chart**:
-  - Center label: `2,200 kcal Daily Target`
-  - Donut slices & legend:
-    - Protein: `145g` (26%) — Blue
-    - Carbs: `275g` (50%) — Yellow/Orange
-    - Fat: `73g` (24%) — Red/Pink
-- **Target Detail Cards**:
-  - **Fiber**: `25 g` (14g per 1000 kcal standard)
-  - **Water**: `2.5 L` Recommended
-
----
-
-## 5. 💊 Micronutrients Detail View (`/micronutrients`)
+## 4. 💊 Micronutrients Detail View (`/micronutrients`)
 
 ### Layout & Sections
 - **Header**: Back arrow, Title `"Micronutrients"`, Search icon
@@ -112,7 +98,7 @@ This document breaks down the exact layout, component architecture, visual eleme
 
 ---
 
-## 6. 🍲 Generated Meal Plan (`/meal-plan`)
+## 5. 🍲 Generated Meal Plan (`/meal-plan`)
 
 ### Layout & Sections
 - **Header**: Back arrow, Title `"Meal Plan"`, Filter icon
@@ -127,7 +113,7 @@ This document breaks down the exact layout, component architecture, visual eleme
 
 ---
 
-## 7. 🔍 Add Meal / Food Logger (`/log-food`)
+## 6. 🔍 Add Meal / Food Logger (`/log-food`)
 
 ### Layout & Sections
 - **Header**: Back arrow, Title `"Add Meal"`, Share/Export icon
@@ -142,7 +128,7 @@ This document breaks down the exact layout, component architecture, visual eleme
 
 ---
 
-## 8. 💡 Insights (`/insights`)
+## 7. 💡 Insights (`/insights`)
 
 ### Layout & Sections
 - **Header**: Back arrow, Title `"Insights"`
@@ -157,7 +143,7 @@ This document breaks down the exact layout, component architecture, visual eleme
 
 ---
 
-## 9. 📊 Reports (`/reports`)
+## 8. 📊 Reports (`/reports`)
 
 > **Navigation change:** This screen replaces the former "Profile" tab in the bottom navigation bar. The 5th bottom-nav tab is now **"Reports"** (bar-chart icon). Profile is accessed via the top-right circular user avatar in `AppHeader`.
 

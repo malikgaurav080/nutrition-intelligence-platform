@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import {
   Splash, SignUp, Login,
   Dashboard, Meals, Health, Insights, Profile, Reports,
-  Targets, Micronutrients, MealPlan, LogFood,
+  Micronutrients, MealPlan, LogFood,
 } from './pages';
 import { UserProvider } from './context/UserContext.tsx';
 import { NutritionProvider } from './context/NutritionContext.tsx';
@@ -47,7 +47,7 @@ function App() {
             />
             <Route
               path="/targets"
-              element={<ProtectedRoute><Targets /></ProtectedRoute>}
+              element={<Navigate to="/micronutrients" replace />}
             />
             <Route
               path="/micronutrients"
