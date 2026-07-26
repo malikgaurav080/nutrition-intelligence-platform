@@ -1,4 +1,4 @@
-import type { FoodItem, MicroRDA, MicroKey } from '../types/nutrition.types';
+import type { FoodItem, MicroRDA, MicroKey, MealPlanWizardState } from '../types/nutrition.types';
 import { VEGETARIAN_FOODS } from '../data/foodDatabase';
 import { getSystemNutrients } from './healthScore';
 import type { HealthSystem } from './healthScore';
@@ -11,7 +11,9 @@ export interface RecommendedFood {
 }
 
 export interface RecommendedMeal {
-  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
+  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Pre-Workout' | 'Post-Workout';
+  time?: string;
+  sortTimeMinutes?: number;
   items: RecommendedFood[];
   totalCalories: number;
   totalProtein: number;
@@ -60,6 +62,32 @@ function isExcluded(food: FoodItem, restrictions: string[]): boolean {
   return false;
 }
 
+/** Parse a time string like "8:00 AM" or "6:30 PM" into minutes from midnight */
+export function parseTimeToMinutes(timeStr?: string): number {
+  if (!timeStr) return 8 * 60;
+  const norm = timeStr.trim().toUpperCase();
+  const match = norm.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/);
+  if (!match) return 8 * 60;
+  let h = parseInt(match[1], 10);
+  const m = parseInt(match[2], 10);
+  const mer = match[3];
+  if (mer === 'PM' && h < 12) h += 12;
+  if (mer === 'AM' && h === 12) h = 0;
+  return h * 60 + m;
+}
+
+/** Format minutes from midnight into 12-hour AM/PM string (e.g. 1020 -> "5:00 PM") */
+export function formatMinutesToTime(mins: number): string {
+  const normalized = ((mins % 1440) + 1440) % 1440;
+  let h = Math.floor(normalized / 60);
+  const m = Math.round(normalized % 60);
+  const mer = h >= 12 ? 'PM' : 'AM';
+  let h12 = h % 12;
+  if (h12 === 0) h12 = 12;
+  const mStr = m < 10 ? `0${m}` : `${m}`;
+  return `${h12}:${mStr} ${mer}`;
+}
+
 /**
  * Generates daily meal suggestions and smart adjustment recommendations.
  * Parameters align to profile targets. Allowed/excluded items are used for filtering.
@@ -74,20 +102,31 @@ export function generateMealPlan(
   allowedIngredients: string[],
   excludedIngredients: string[],
   restrictions: string[],
-  offset: number = 0
+  offset: number = 0,
+  wizardConfig?: MealPlanWizardState
 ): { meals: RecommendedMeal[]; adjustments: SmartAdjustment[]; planDeficiencies: string[] } {
-  // 1. Filter database based on restrictions, allowed items, and excluded items
+  // 1. Filter database based on restrictions, allowed items, and categorized excluded items
+  const combinedExclusions = new Set<string>([
+    ...excludedIngredients,
+    ...(wizardConfig?.excludedFruits ?? []),
+    ...(wizardConfig?.excludedNuts ?? []),
+    ...(wizardConfig?.excludedVeggies ?? []),
+    ...(wizardConfig?.excludedProteins ?? []),
+  ]);
+
   let allowedFoods = VEGETARIAN_FOODS.filter(f => !isExcluded(f, restrictions));
 
   if (allowedIngredients.length > 0) {
     allowedFoods = allowedFoods.filter(f => allowedIngredients.includes(f.id));
   }
 
-  if (excludedIngredients.length > 0) {
-    allowedFoods = allowedFoods.filter(f => !excludedIngredients.includes(f.id));
+  if (combinedExclusions.size > 0) {
+    allowedFoods = allowedFoods.filter(f => !combinedExclusions.has(f.id));
   }
 
-  // 2. Identify highest-deficit nutrients in the user's selected health priorities
+
+
+  // 3. Identify highest-deficit nutrients in the user's selected health priorities
   const deficitNutrients: { key: MicroKey; deficit: number }[] = [];
   const systemNutrientKeys = new Set<MicroKey>();
 
@@ -111,7 +150,7 @@ export function generateMealPlan(
   deficitNutrients.sort((a, b) => b.deficit - a.deficit);
   const keyDeficits = deficitNutrients.map(d => d.key);
 
-  // 3. Helper to score foods based on how well they address user deficits and protein needs
+  // Helper to score foods based on how well they address user deficits and protein needs
   const scoreFood = (food: FoodItem): number => {
     let score = 0;
     score += food.macros.protein * 2;
@@ -139,65 +178,168 @@ export function generateMealPlan(
   const meals: RecommendedMeal[] = [];
   const adjustments: SmartAdjustment[] = [];
 
-  const dailyCaloriesTarget = Math.max(remainingCalories, 300);
+  const dailyCaloriesTarget = Math.max(Math.round(remainingCalories), 300);
 
-  // Define meal slot allocations
-  const slots: { slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks'; pct: number; cats: (keyof typeof categories)[] }[] = [
-    { slot: 'Breakfast', pct: 0.25, cats: ['proteins_dairy', 'fruits', 'seeds_nuts'] },
-    { slot: 'Lunch',     pct: 0.35, cats: ['grains_legumes', 'proteins_dairy', 'vegetables'] },
-    { slot: 'Dinner',    pct: 0.30, cats: ['grains_legumes', 'vegetables', 'seeds_nuts'] },
-    { slot: 'Snacks',    pct: 0.10, cats: ['fruits', 'seeds_nuts'] },
-  ];
+  // Define meal slot allocations based on wizard config (Gym vs Non-Gym)
+  type SlotType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Pre-Workout' | 'Post-Workout';
+  let slots: { slot: SlotType; pct: number; cats: (keyof typeof categories)[] }[] = [];
+
+  if (wizardConfig?.gymWorkout) {
+    slots = [
+      { slot: 'Pre-Workout',  pct: 0.12, cats: ['fruits', 'seeds_nuts'] },
+      { slot: 'Post-Workout', pct: 0.23, cats: ['proteins_dairy'] },
+      { slot: 'Breakfast',    pct: 0.20, cats: ['proteins_dairy', 'fruits'] },
+      { slot: 'Lunch',        pct: 0.25, cats: ['grains_legumes', 'proteins_dairy', 'vegetables'] },
+      { slot: 'Dinner',       pct: 0.20, cats: ['grains_legumes', 'vegetables', 'seeds_nuts'] },
+    ];
+  } else {
+    slots = [
+      { slot: 'Breakfast', pct: 0.25, cats: ['proteins_dairy', 'fruits', 'seeds_nuts'] },
+      { slot: 'Lunch',     pct: 0.35, cats: ['grains_legumes', 'proteins_dairy', 'vegetables'] },
+      { slot: 'Dinner',    pct: 0.30, cats: ['grains_legumes', 'vegetables', 'seeds_nuts'] },
+      { slot: 'Snacks',    pct: 0.10, cats: ['fruits', 'seeds_nuts'] },
+    ];
+  }
 
   // 4. Generate meals
+  const wheyFood = VEGETARIAN_FOODS.find(f => f.id === 'whey_protein') || {
+    id: 'whey_protein',
+    name: 'Whey Protein (Veg)',
+    category: 'proteins_dairy' as const,
+    servingSize: '1 scoop (30g)',
+    servingUnit: 'scoop',
+    baseQty: 1,
+    macros: { calories: 120, protein: 24, carbs: 3, fat: 1.5, fiber: 0 },
+    micros: { vitA: 0, vitC: 0, vitD: 10, vitE: 0, vitB12: 25, calcium: 15, iron: 2, zinc: 5, magnesium: 8, potassium: 4, folate: 0, omega3: 0 }
+  };
+
+  const scoops = wizardConfig?.proteinScoops ?? 0;
+  const workoutMins = parseTimeToMinutes(wizardConfig?.workoutTime || '8:00 AM');
+  const wakeMins = (wizardConfig?.wakeHour ?? 7) * 60;
+  const sleepMins = (wizardConfig?.sleepHour ?? 23) * 60;
+
+  function getSlotMins(s: SlotType): number {
+    switch (s) {
+      case 'Pre-Workout':  return workoutMins - 60; // Exactly 1 hour before gym time
+      case 'Post-Workout': return workoutMins + 60; // Exactly 1 hour after gym start
+      case 'Breakfast':    return wakeMins + 60;    // 1h after waking up
+      case 'Lunch':        return wakeMins + 360;   // 6h after waking up
+      case 'Dinner':       return sleepMins - 150;  // 2.5h before sleeping
+      case 'Snacks':       return wakeMins + 570;   // 9.5h after waking up
+    }
+  }
+
   for (const { slot, pct, cats } of slots) {
     const slotCalTarget = dailyCaloriesTarget * pct;
     const selectedItems: RecommendedFood[] = [];
-    let slotCals = 0;
-    let slotProtein = 0;
+    const slotMins = getSlotMins(slot);
 
-    for (const catName of cats) {
-      const candidates = categories[catName];
-      if (candidates && candidates.length > 0) {
-        const index = offset % candidates.length;
-        const best = candidates[index];
-        const portionCalTarget = slotCalTarget / cats.length;
-        const loggedQty = Math.max(parseFloat((portionCalTarget / best.macros.calories).toFixed(1)), 0.5);
-
+    // Post-Workout slot: Must contain ONLY 1 item (Whey Protein scoop if scoops > 0, else 1 high-protein food)
+    if (slot === 'Post-Workout') {
+      if (scoops > 0) {
         selectedItems.push({
-          food: best,
-          loggedQty,
-          reason: `High in ${best.macros.protein > 10 ? 'Protein' : best.macros.fiber > 4 ? 'Fiber' : 'essential micronutrients'}`
+          food: wheyFood,
+          loggedQty: 1,
+          reason: 'Post-Workout Whey Protein Scoop for rapid muscle recovery'
         });
-        slotCals += best.macros.calories * loggedQty;
-        slotProtein += best.macros.protein * loggedQty;
       } else {
-        // Fallback: search general vegetarian database
-        const fallbacks = VEGETARIAN_FOODS.filter(f => f.category === catName && !isExcluded(f, restrictions));
-        if (fallbacks.length > 0) {
-          const index = offset % fallbacks.length;
-          const best = fallbacks[index];
+        const bestProt = categories.proteins_dairy[offset % Math.max(categories.proteins_dairy.length, 1)] || VEGETARIAN_FOODS[0];
+        const loggedQty = parseFloat((slotCalTarget / bestProt.macros.calories).toFixed(2));
+        selectedItems.push({
+          food: bestProt,
+          loggedQty,
+          reason: 'Post-Workout high-protein recovery meal'
+        });
+      }
+    } else {
+      // Other slots: Add Scoop if configured for Breakfast/Snacks
+      if (scoops === 1 && slot === 'Breakfast' && !wizardConfig?.gymWorkout) {
+        selectedItems.push({
+          food: wheyFood,
+          loggedQty: 1,
+          reason: 'Morning Whey Protein Scoop for daily protein target'
+        });
+      } else if (scoops === 2 && slot === 'Breakfast') {
+        selectedItems.push({
+          food: wheyFood,
+          loggedQty: 1,
+          reason: 'Morning Whey Protein Scoop with meal for daily protein target'
+        });
+      } else if (scoops === 2 && slot === 'Snacks' && !wizardConfig?.gymWorkout) {
+        selectedItems.push({
+          food: wheyFood,
+          loggedQty: 1,
+          reason: 'Evening Whey Protein Scoop'
+        });
+      }
+
+      for (const catName of cats) {
+        const candidates = categories[catName];
+        if (candidates && candidates.length > 0) {
+          const index = offset % candidates.length;
+          const best = candidates[index];
           const portionCalTarget = slotCalTarget / cats.length;
-          const loggedQty = Math.max(parseFloat((portionCalTarget / best.macros.calories).toFixed(1)), 0.5);
+          const loggedQty = parseFloat((portionCalTarget / best.macros.calories).toFixed(2));
 
           selectedItems.push({
             food: best,
             loggedQty,
-            reason: `Fallback: High in ${best.macros.protein > 10 ? 'Protein' : 'nutrients'}`
+            reason: `High in ${best.macros.protein > 10 ? 'Protein' : best.macros.fiber > 4 ? 'Fiber' : 'essential micronutrients'}`
           });
-          slotCals += best.macros.calories * loggedQty;
-          slotProtein += best.macros.protein * loggedQty;
+        } else {
+          // Fallback: search general vegetarian database
+          const fallbacks = VEGETARIAN_FOODS.filter(f => f.category === catName && !isExcluded(f, restrictions));
+          if (fallbacks.length > 0) {
+            const index = offset % fallbacks.length;
+            const best = fallbacks[index];
+            const portionCalTarget = slotCalTarget / cats.length;
+            const loggedQty = parseFloat((portionCalTarget / best.macros.calories).toFixed(2));
+
+            selectedItems.push({
+              food: best,
+              loggedQty,
+              reason: `Fallback: High in ${best.macros.protein > 10 ? 'Protein' : 'nutrients'}`
+            });
+          }
         }
       }
     }
 
     meals.push({
       slot,
+      time: formatMinutesToTime(slotMins),
+      sortTimeMinutes: slotMins,
       items: selectedItems,
-      totalCalories: Math.round(slotCals),
-      totalProtein: Math.round(slotProtein)
+      totalCalories: Math.round(selectedItems.reduce((s, it) => s + it.food.macros.calories * it.loggedQty, 0)),
+      totalProtein: Math.round(selectedItems.reduce((s, it) => s + it.food.macros.protein * it.loggedQty, 0))
     });
   }
+
+  // 4b. Calorie & Protein Target Normalization Pass
+  // Deduct scoop calories and scale whole food portions so total plan calories match dailyCaloriesTarget precisely
+  const totalScoopCalories = meals.reduce((sum, meal) => sum + meal.items.filter(it => it.food.id === 'whey_protein').reduce((s, it) => s + it.food.macros.calories * it.loggedQty, 0), 0);
+  const rawWholeFoodCalories = meals.reduce((sum, meal) => sum + meal.items.filter(it => it.food.id !== 'whey_protein').reduce((s, it) => s + it.food.macros.calories * it.loggedQty, 0), 0);
+  const targetWholeFoodCalories = Math.max(dailyCaloriesTarget - totalScoopCalories, 200);
+
+  if (rawWholeFoodCalories > 0) {
+    const scaleFactor = targetWholeFoodCalories / rawWholeFoodCalories;
+    for (const meal of meals) {
+      let slotCals = 0;
+      let slotProt = 0;
+      for (const item of meal.items) {
+        if (item.food.id !== 'whey_protein') {
+          item.loggedQty = Math.max(parseFloat((item.loggedQty * scaleFactor).toFixed(2)), 0.1);
+        }
+        slotCals += item.food.macros.calories * item.loggedQty;
+        slotProt += item.food.macros.protein * item.loggedQty;
+      }
+      meal.totalCalories = Math.round(slotCals);
+      meal.totalProtein = Math.round(slotProt);
+    }
+  }
+
+  // 4c. Sort meals in ascending chronological order based on sortTimeMinutes
+  meals.sort((a, b) => (a.sortTimeMinutes ?? 0) - (b.sortTimeMinutes ?? 0));
 
   // 5. Generate Smart Adjustments based on deficits
   if (keyDeficits.includes('magnesium')) {

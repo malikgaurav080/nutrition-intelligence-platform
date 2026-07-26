@@ -8,6 +8,7 @@ import type { HealthSystem } from '../engine/healthScore';
 import AppHeader from '../components/layout/AppHeader';
 import BottomNav from '../components/layout/BottomNav';
 import ProgressBar from '../components/ui/ProgressBar';
+import ProgressRing from '../components/ui/ProgressRing';
 
 const PRIORITY_MAP: Record<string, HealthSystem> = {
   'Brain & Nervous System': 'Brain',
@@ -472,7 +473,7 @@ export default function Dashboard() {
               padding: 0,
             }}
           >
-            Micronutrients 💊
+            Micronutrients ➔
           </button>
         </div>
 
@@ -553,22 +554,28 @@ export default function Dashboard() {
                       (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
                     }}
                   >
-                    {/* Circular Icon Badge Container */}
-                    <div
-                      style={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: '50%',
-                        backgroundColor: accent.bg,
-                        border: `1px solid ${accent.border}`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
-                      }}
+                    {/* Circular Icon Badge Container with Circular Progress Ring */}
+                    <ProgressRing
+                      value={score}
+                      size={52}
+                      strokeWidth={3.5}
+                      color={color}
+                      trackColor={accent.border}
                     >
-                      <span style={{ fontSize: '1.35rem' }}>{meta.emoji}</span>
-                    </div>
+                      <div
+                        style={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: '50%',
+                          backgroundColor: accent.bg,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <span style={{ fontSize: '1.25rem' }}>{meta.emoji}</span>
+                      </div>
+                    </ProgressRing>
 
                     {/* Percentage Score */}
                     <span

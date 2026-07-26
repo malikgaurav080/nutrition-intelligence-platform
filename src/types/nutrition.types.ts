@@ -148,7 +148,7 @@ export interface FoodItem {
 }
 
 export interface LoggedFood {
-  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
+  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Pre-Workout' | 'Post-Workout';
   foodId: string;
   name: string;
   servingSize: string;
@@ -198,7 +198,8 @@ export interface SavedMealPlan {
   name: string;
   isActive: boolean;
   meals: {
-    slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
+    slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Pre-Workout' | 'Post-Workout';
+    time?: string;
     items: {
       foodId: string;
       name: string;
@@ -234,4 +235,19 @@ export interface SavedMealPlan {
   }[];
   planDeficiencies: string[];
   adjustments: { type: string; text: string }[];
+  wizardConfig?: MealPlanWizardState;
+}
+
+export interface MealPlanWizardState {
+  gymWorkout: boolean;
+  primaryGoal: 'Fat Loss' | 'Muscle Build' | 'Maintain Weight' | 'Athletic Performance' | 'General Wellness';
+  workoutTime: string;
+  wakeHour: number;
+  sleepHour: number;
+  mealCount: number;
+  proteinScoops: 0 | 1 | 2;
+  excludedFruits: string[];
+  excludedNuts: string[];
+  excludedVeggies: string[];
+  excludedProteins: string[];
 }

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ILoggedMeal {
-  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
+  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Pre-Workout' | 'Post-Workout';
   foodId: string;
   name: string;
   servingSize: string;
@@ -41,7 +41,7 @@ export interface IDailyLog extends Document {
 const LoggedMealSchema = new Schema<ILoggedMeal>({
   slot: {
     type: String,
-    enum: ['Breakfast', 'Lunch', 'Dinner', 'Snacks'],
+    enum: ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Pre-Workout', 'Post-Workout'],
     required: true
   },
   foodId: { type: String, required: true },

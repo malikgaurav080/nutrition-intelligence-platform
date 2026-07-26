@@ -26,7 +26,7 @@ router.get('/', protect, async (req: AuthRequest, res: Response): Promise<any> =
 // @access  Private
 router.post('/', protect, async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const { name, meals, planDeficiencies, adjustments, overwriteId } = req.body;
+    const { name, meals, planDeficiencies, adjustments, overwriteId, wizardConfig } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -52,7 +52,7 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<any> 
       // Overwrite an existing plan
       plan = await MealPlan.findOneAndUpdate(
         { _id: overwriteId, userId },
-        { name, meals, planDeficiencies, adjustments },
+        { name, meals, planDeficiencies, adjustments, wizardConfig },
         { new: true }
       );
       if (!plan) {
@@ -66,6 +66,7 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<any> 
         meals,
         planDeficiencies,
         adjustments,
+        wizardConfig,
         isActive: existingPlans.length === 0 // Make it active if it is the first plan
       });
       await plan.save();

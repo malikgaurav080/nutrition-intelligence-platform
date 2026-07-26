@@ -22,7 +22,7 @@ This document breaks down the exact layout, component architecture, visual eleme
   - Clear SVG glass cup shape with blue fill level indicator for consumed glasses
   - Tapping `+ Add Glass` or any empty glass adds 250ml and logs directly to DB via backend API
 - **Today's Progress (2x2 Macro Grid)**:
-  - Header: `"Macronutrient Progress"` title on left, `"Micronutrients 💊"` button on right (navigates to `/micronutrients`)
+  - Header: `"Macronutrient Progress"` title on left, `"Micronutrients ➔"` button on right (navigates to `/micronutrients`)
   - Macro cards feature distinct nutrient icons for enhanced visual scanability:
     - 🥩 **Protein**: `102 / 145 g` (70%)
     - 🍞 **Carbs**: `220 / 275 g` (80%)
@@ -31,7 +31,7 @@ This document breaks down the exact layout, component architecture, visual eleme
   - *(Calories and Water removed from grid as they are featured in Hero & Water sections above)*
 - **Health System Scores (Horizontal Scroll / Badges)**:
   - Dynamic circular icon badges displaying the user's selected Health Priorities chosen during registration/onboarding (min 1, max 5)
-  - Each badge features a rounded circular icon background container with themed accent colors, bold percentage completion score (e.g. `91%`), and clean title label (e.g., Brain, Immunity, Heart, Bones, Muscle)
+  - Each badge features an animated SVG circular progress ring wrapped around the icon container with themed accent colors, bold percentage completion score (e.g. `91%`), and clean title label (e.g., Brain, Immunity, Heart, Bones, Muscle)
   - Horizontal scroll container (`pill-tabs`) allowing sleek scannability
   - Interactive navigation: Tapping any health badge opens the Health Systems detailed view (`/health`)
 - **Bottom Navigation Bar**:
@@ -44,23 +44,20 @@ This document breaks down the exact layout, component architecture, visual eleme
 ## 2. 🥗 Today's Meals (`/meals`)
 
 ### Layout & Sections
-- **Header**: Title `"Today's Meals"`, Calendar date picker icon
-- **Meal Schedule Tabs**: `Breakfast` (Active), `Lunch`, `Dinner`, `Snacks`
-- **Active Meal Item Card**:
-  - Meal food photo thumbnail (e.g. Greek Yogurt Bowl)
-  - Status badge: `Completed ✓`
-  - Macro breakdown pill: Calories `480 kcal`, Protein `28g`, Carbs `42g`, Fat `18g`
+- **Empty Plan State**:
+  - Rendered when `savedPlans.length === 0` (no saved custom meal plans exist)
+  - Container: Soft dark card with 🍲 emoji icon
+  - Title: `"No Active Meal Plan"`
+  - Description: *"You haven't generated or saved a custom meal plan yet. Create your first plan based on your daily targets, waking hours, and dietary preferences!"*
+  - CTA Action: `⚡ Generate Personalized Meal Plan` primary button navigating to `/generate-plan`
+- **Active Meal Plan Banner Card (When Plan Exists)**:
+  - Gradient emerald container (`linear-gradient(135deg, #064E3B, #065F46)`)
+  - Title: Custom Plan Name (e.g., `"Muscle Building Plan"`)
+  - Subtitle: Macro totals (`Total kcal · Protein g · Carbs g · Fat g`)
+  - Actions: `🔄 Switch Plan` dropdown toggling up to 3 stored custom plans
 - **Meal Timeline (Vertical Timeline)**:
-  - Header: `"Meal Timeline"` title with top-right chevron icon (`>`)
-  - Vertical layout: Individual rounded card containers for each slot linked by a continuous left vertical connector line
-  - Node Badges:
-    - Logged Slot: Solid green circular checkmark badge (`✓`)
-    - Pending Slot: Circular outlined badge with clock icon and green top accent tab
-  - Details: Bold slot title (`Breakfast`, `Lunch`, `Snacks`, `Dinner`), subtitle line formatted as `Time • Calories` (e.g. `8:30 AM • 480 kcal`, `12:30 PM • 650 kcal`)
-  - Actions: Circular elevated `+` button on right side for pending slots
-- **AI Recommendation Card**:
-  - Soft grey card with nutrient icon/photo
-  - Copy: *"You're low on Iron and Omega-3. Add Pumpkin Seeds to your next meal."*
+  - Chronologically sorted by exact calculated slot timestamps (Breakfast, Lunch, Pre-Workout, Post-Workout, Dinner)
+  - Details: Bold slot title, exact slot time timestamp (e.g. `Pre-Workout 5:00 PM`, `Post-Workout 7:00 PM`), and total slot calories/macros
 
 ---
 
@@ -125,17 +122,26 @@ This document breaks down the exact layout, component architecture, visual eleme
 ## 5.1. ⚡ Generate & Preview Meal Plan (`/generate-plan`)
 
 ### Layout & Sections
-- **Header**: Back arrow (`← Back to Meals`), Title `"Generate New Plan"`
-- **Meal Plan Preview Banner**: Dark emerald gradient card (`#064E3B` → `#065F46`) featuring title `"Generated Meal Plan"`, total calories & protein metrics, and header `🔄 Regenerate` button
-- **Nutrient Gap Audit Card**: Amber warning container (`var(--color-amber-bg)`) listing audited micronutrient deficiencies in the generated draft
-- **Timeline Meal Slot Preview Cards**: Connected vertical timeline track with time badges (8:00 AM, 1:00 PM, 4:30 PM, 8:00 PM) displaying slot macro totals and food items with individual macro badges (`🥩 P · 🍞 C · 🥑 F`, **no Log Slot buttons**)
-- **Sticky Actions Row**:
-  - `🔄 Regenerate` ghost CTA to shuffle and generate alternative recommendations
-  - `💾 Save Meal Plan` primary CTA opening the interactive Save Plan Modal popup
-- **Save Meal Plan Modal Popup** (opened upon clicking `💾 Save Meal Plan`):
-  - **Plan Name Input**: Editable text field (`✏️ Plan Name`, pre-filled with custom name e.g. `Plan 2`)
-  - **Active Plan Toggle Switch**: Checkbox card (`🌟 Set as Active Plan`) setting the plan active upon saving
-  - **Modal Actions**: `Cancel` ghost button and `Save Plan` primary CTA saving to MongoDB and redirecting to `/meals`
+- **Header**: Back arrow (`← Back`), Title `"Meal Plan Generator 🍲"`
+- **Interactive Multi-Step Questionnaire Wizard**:
+  - **Progress Indicator**: Step progress header (`STEP N OF 9` if Gym = Yes; `STEP N OF 8` if Gym = No) with `Skip Wizard ⚡` shortcut button
+  - **Step 1 — Gym Workout Status**: Gym status selection (`🏋️‍♂️ Yes, I Gym Daily` / `🚶 No, Light Activity`) toggling Pre/Post workout slots
+  - **Step 2 — Non-Sleeping Waking Hours (Single 0–24h Track Line Dual-Pointer Slider)**: Interactive single 0 to 24-hour track line with dual pointers for Wake Up time (First point) and Sleep time (Second point) visually highlighting the active waking hours window
+  - **Step 3 — Workout Timing**: Dynamic workout time window suggestions calculated strictly inside the user's selected waking hours range
+  - **Step 4 — Generated Meal Slots Structure**: Visual preview of dynamically generated meal slots (`Pre-Workout`, `Post-Workout`, `Breakfast`, `Lunch`, `Dinner`)
+  - **Step 5 — Protein Powder Supplementation**: Scoop preference selection (`No Protein Powder`, `1 Scoop Daily (~24g)` [placed in Post-Workout], `2 Scoops Daily (~48g)` [placed in Breakfast & Post-Workout]) automatically assigned to target slots
+  - **Step 6a–6d — Categorized Food Exclusion Screens**: Interactive chip selectors for excluding specific foods across **Fruits** (Step 6a), **Nuts & Seeds** (Step 6b), **Vegetables** (Step 6c), and **Proteins & Dairy** (Step 6d)
+- **Generated Meal Plan Preview Screen** (unlocked upon completing wizard or clicking Skip):
+  - **Engine Calorie Target Precision**: Portions dynamically scaled so generated total calories match the user's Dashboard target calories directly (±1-2%) without goal multipliers
+  - **Post-Workout Slot Constraint**: Post-Workout slot contains strictly 1 single item (Whey Protein Scoop if protein scoops > 0, or 1 high-protein food if 0 scoops)
+  - **Exact 1-Hour Pre/Post Workout Timestamps**: Pre-Workout slot time calculated as exactly **1 hour BEFORE gym time** (e.g. 6:00 PM gym ➔ 5:00 PM); Post-Workout slot time calculated as exactly **1 hour AFTER gym start** (e.g. 6:00 PM gym ➔ 7:00 PM)
+  - **Chronological Timeline Sorting**: All meal slots automatically sorted from earliest time of day to latest time of day
+  - **MongoDB Schema Persistence**: `wizardConfig` questionnaire answers saved inside the MongoDB `MealPlan` document for permanent retrieval
+  - **Preferences Summary Banner**: Shows active wizard selections with `✏️ Edit Questionnaire` button to re-open wizard
+  - **Meal Plan Totals Card**: Total calories & protein metrics with `🔄 Regenerate` button
+  - **Nutrient Gap Audit Card**: Amber warning container (`var(--color-amber-bg)`) listing audited micronutrient deficiencies in the draft
+  - **Timeline Meal Slot Cards**: Timeline cards for each slot displaying total slot calories/protein, exact calculated slot timestamp, and individual food items
+  - **Save Meal Plan CTA & Modal Popup**: `💾 Save Custom Meal Plan` button opening interactive popup with plan custom name input, active plan toggle switch, and MongoDB commit action
 
 ---
 

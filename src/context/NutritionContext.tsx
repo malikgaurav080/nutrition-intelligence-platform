@@ -24,7 +24,8 @@ interface NutritionContextType {
     meals: any[],
     planDeficiencies: string[],
     adjustments: any[],
-    overwriteId?: string
+    overwriteId?: string,
+    wizardConfig?: any
   ) => Promise<{ success: boolean; error?: string; existingPlans?: { id: string; name: string }[] }>;
   setActiveMealPlan: (id: string) => Promise<boolean>;
   deleteMealPlan: (id: string) => Promise<boolean>;
@@ -272,13 +273,15 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     meals: any[],
     planDeficiencies: string[],
     adjustments: any[],
-    overwriteId?: string
+    overwriteId?: string,
+    wizardConfig?: any
   ) => {
     const token = sessionStorage.getItem('token');
     if (!token) return { success: false, error: 'Unauthorized' };
 
     const formattedMeals = meals.map((m: any) => ({
       slot: m.slot,
+      time: m.time,
       totalCalories: m.totalCalories,
       totalProtein: m.totalProtein,
       items: (m.items || []).map((item: any) => {
@@ -304,7 +307,7 @@ export const NutritionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ name, meals: formattedMeals, planDeficiencies, adjustments, overwriteId })
+        body: JSON.stringify({ name, meals: formattedMeals, planDeficiencies, adjustments, overwriteId, wizardConfig })
       });
 
       const data = await response.json();

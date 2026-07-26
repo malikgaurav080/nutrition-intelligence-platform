@@ -32,7 +32,8 @@ export interface IRecommendedItem {
 }
 
 export interface IRecommendedMeal {
-  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
+  slot: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Pre-Workout' | 'Post-Workout';
+  time?: string;
   items: IRecommendedItem[];
   totalCalories: number;
   totalProtein: number;
@@ -45,6 +46,18 @@ export interface IMealPlan extends Document {
   meals: IRecommendedMeal[];
   planDeficiencies: string[];
   adjustments: { type: string; text: string }[];
+  wizardConfig?: {
+    gymWorkout: boolean;
+    workoutTime: string;
+    wakeHour: number;
+    sleepHour: number;
+    mealCount: number;
+    proteinScoops: number;
+    excludedFruits: string[];
+    excludedNuts: string[];
+    excludedVeggies: string[];
+    excludedProteins: string[];
+  };
 }
 
 const RecommendedItemSchema = new Schema<IRecommendedItem>({
@@ -81,9 +94,10 @@ const RecommendedItemSchema = new Schema<IRecommendedItem>({
 const RecommendedMealSchema = new Schema<IRecommendedMeal>({
   slot: {
     type: String,
-    enum: ['Breakfast', 'Lunch', 'Dinner', 'Snacks'],
+    enum: ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Pre-Workout', 'Post-Workout'],
     required: true
   },
+  time: { type: String },
   items: {
     type: [RecommendedItemSchema],
     default: []
@@ -118,7 +132,19 @@ const MealPlanSchema = new Schema<IMealPlan>({
   adjustments: [{
     type: { type: String, required: true },
     text: { type: String, required: true }
-  }]
+  }],
+  wizardConfig: {
+    gymWorkout: { type: Boolean, default: false },
+    workoutTime: { type: String, default: '8:00 AM' },
+    wakeHour: { type: Number, default: 7 },
+    sleepHour: { type: Number, default: 23 },
+    mealCount: { type: Number, default: 4 },
+    proteinScoops: { type: Number, default: 0 },
+    excludedFruits: [String],
+    excludedNuts: [String],
+    excludedVeggies: [String],
+    excludedProteins: [String]
+  }
 }, {
   timestamps: true
 });

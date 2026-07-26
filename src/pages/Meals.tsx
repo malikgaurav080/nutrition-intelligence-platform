@@ -1,22 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNutrition } from '../context/NutritionContext';
 import type { LoggedFood } from '../types/nutrition.types';
 import AppHeader from '../components/layout/AppHeader';
 import BottomNav from '../components/layout/BottomNav';
+import { parseTimeToMinutes } from '../engine/mealGenerator';
 
 const SLOT_EMOJIS: Record<string, string> = {
   Breakfast: '☀️',
   Lunch: '🌤️',
   Snacks: '🍎',
   Dinner: '🌙',
+  'Pre-Workout': '⚡',
+  'Post-Workout': '💪',
 };
 
 const SLOT_TIMES: Record<string, string> = {
   Breakfast: '8:00 AM',
   Lunch: '1:00 PM',
   Snacks: '4:30 PM',
-  Dinner: '8:00 PM',
+  Dinner: '8:30 PM',
+  'Pre-Workout': '5:00 PM',
+  'Post-Workout': '7:00 PM',
 };
 
 /**
@@ -56,6 +61,16 @@ export default function MealPlan() {
   const displayPlan = selectedSavedPlan;
   const planName = selectedSavedPlan?.name ?? 'Plan 1';
 
+  // Chronologically sort meals by time of day
+  const sortedMeals = useMemo(() => {
+    if (!displayPlan?.meals) return [];
+    return [...displayPlan.meals].sort((a, b) => {
+      const timeA = parseTimeToMinutes(a.time || (SLOT_TIMES[a.slot] ?? '12:00 PM'));
+      const timeB = parseTimeToMinutes(b.time || (SLOT_TIMES[b.slot] ?? '12:00 PM'));
+      return timeA - timeB;
+    });
+  }, [displayPlan]);
+
   const totalPlanCalories = displayPlan
     ? displayPlan.meals.reduce((s, m) => s + m.totalCalories, 0)
     : 0;
@@ -93,53 +108,55 @@ export default function MealPlan() {
       />
 
       <div className="page-content">
-        {/* ── Single Merged Unified Meal Plan Banner Card ─────── */}
-        <div
-          className="card animate-fade-up"
-          style={{
-            padding: 16,
-            marginBottom: 16,
-            background: 'linear-gradient(135deg, #064E3B, #065F46)',
-            border: '1px solid rgba(16, 185, 129, 0.35)',
-            borderRadius: 'var(--radius-lg)',
-            color: '#FFFFFF',
-          }}
-        >
-          {/* Header row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: '0.7rem', color: '#34D399', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                🌟 {selectedSavedPlan?.isActive || currentActivePlan?._id === selectedSavedPlan?._id ? 'Active Plan' : 'Meal Plan'}
-              </span>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#34D399', display: 'inline-block' }} />
-            </div>
-
-            <button
-              id="switch-plan-btn"
-              onClick={() => setShowSwitcher(prev => !prev)}
+        {displayPlan ? (
+          <>
+            {/* ── Single Merged Unified Meal Plan Banner Card ─────── */}
+            <div
+              className="card animate-fade-up"
               style={{
-                padding: '5px 12px',
-                borderRadius: 'var(--radius-full)',
-                backgroundColor: showSwitcher ? '#FFFFFF' : 'rgba(255, 255, 255, 0.15)',
-                color: showSwitcher ? '#064E3B' : '#FFFFFF',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                padding: 16,
+                marginBottom: 16,
+                background: 'linear-gradient(135deg, #064E3B, #065F46)',
+                border: '1px solid rgba(16, 185, 129, 0.35)',
+                borderRadius: 'var(--radius-lg)',
+                color: '#FFFFFF',
               }}
             >
-              {showSwitcher ? '✕ Close' : '🔄 Switch Plan'}
-            </button>
-          </div>
+              {/* Header row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: '0.7rem', color: '#34D399', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    🌟 {selectedSavedPlan?.isActive || currentActivePlan?._id === selectedSavedPlan?._id ? 'Active Plan' : 'Meal Plan'}
+                  </span>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#34D399', display: 'inline-block' }} />
+                </div>
 
-          {/* Plan Name & Metrics */}
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#FFFFFF', margin: '0 0 2px 0' }}>
-            {planName}
-          </h2>
-          <p style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.85)', margin: 0 }}>
-            High Protein Plan · {Math.round(totalPlanCalories)} kcal · {Math.round(totalPlanProtein)}g P · {Math.round(totalPlanCarbs)}g C · {Math.round(totalPlanFat)}g F
-          </p>
+                <button
+                  id="switch-plan-btn"
+                  onClick={() => setShowSwitcher(prev => !prev)}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: 'var(--radius-full)',
+                    backgroundColor: showSwitcher ? '#FFFFFF' : 'rgba(255, 255, 255, 0.15)',
+                    color: showSwitcher ? '#064E3B' : '#FFFFFF',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {showSwitcher ? '✕ Close' : '🔄 Switch Plan'}
+                </button>
+              </div>
+
+              {/* Plan Name & Metrics */}
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#FFFFFF', margin: '0 0 2px 0' }}>
+                {planName}
+              </h2>
+              <p style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.85)', margin: 0 }}>
+                High Protein Plan · {Math.round(totalPlanCalories)} kcal · {Math.round(totalPlanProtein)}g P · {Math.round(totalPlanCarbs)}g C · {Math.round(totalPlanFat)}g F
+              </p>
 
           {/* Integrated Selector inside the same banner */}
           {showSwitcher && (
@@ -257,10 +274,6 @@ export default function MealPlan() {
           )}
         </div>
 
-        {/* ── Display Plan ─────────────────────────────────────── */}
-        {displayPlan ? (
-          <>
-
             {/* ── Deficiency alerts ────────────────────────────── */}
             {displayPlan.planDeficiencies.length > 0 && (
               <div
@@ -301,7 +314,7 @@ export default function MealPlan() {
               />
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {displayPlan.meals.map((meal, i) => {
+                {sortedMeals.map((meal, i) => {
                   const isLogged = todayLog?.meals?.some((m: any) => m.slot === meal.slot) ?? false;
                   return (
                     <div
@@ -361,7 +374,7 @@ export default function MealPlan() {
                                     borderRadius: 'var(--radius-full)',
                                   }}
                                 >
-                                  ⏰ {(typeof SLOT_TIMES !== 'undefined' && SLOT_TIMES[meal.slot]) ? SLOT_TIMES[meal.slot] : '12:00 PM'}
+                                  ⏰ {meal.time || (typeof SLOT_TIMES !== 'undefined' && SLOT_TIMES[meal.slot]) ? (meal.time || SLOT_TIMES[meal.slot]) : '12:00 PM'}
                                 </span>
                               </div>
                               <p className="tabular-nums" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>
@@ -519,28 +532,37 @@ export default function MealPlan() {
             )}
           </>
         ) : (
-          /* Empty state */
-          <div className="card" style={{ padding: '40px 24px', textAlign: 'center', border: '2px dashed var(--border)' }}>
-            <p style={{ fontSize: '2.5rem', marginBottom: 12 }}>🍲</p>
-            <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: 8 }}>
-              No Meal Plan Generated
+          /* Empty state when no meal plan is saved */
+          <div className="card animate-fade-up" style={{ padding: '36px 20px', textAlign: 'center', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: 12 }}>🍲</div>
+            <h2 style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)', marginBottom: 8 }}>
+              No Active Meal Plan
+            </h2>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginBottom: 24, lineHeight: 1.5, maxWidth: 360, margin: '0 auto 24px auto' }}>
+              You haven't generated or saved a custom meal plan yet. Create your first plan based on your daily targets, waking hours, and dietary preferences!
             </p>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 20, lineHeight: 1.5 }}>
-              Tap "Generate New Plan" to create a personalized meal plan based on your remaining daily targets.
-            </p>
+            <button
+              className="btn-primary"
+              onClick={() => navigate('/generate-plan')}
+              style={{ width: '100%', padding: '14px 16px', fontSize: '0.95rem', fontWeight: 700 }}
+            >
+              ⚡ Generate Personalized Meal Plan
+            </button>
           </div>
         )}
 
-        {/* ── Generate New Plan sticky CTA ─────────────────────── */}
-        <div style={{ position: 'sticky', bottom: 100, paddingTop: 12 }}>
-          <button
-            id="generate-new-plan-btn"
-            className="btn-primary"
-            onClick={() => navigate('/generate-plan')}
-          >
-            🔄 Generate New Plan
-          </button>
-        </div>
+        {/* ── Generate New Plan sticky CTA (Only shown when plan exists) ─────────────────────── */}
+        {displayPlan && (
+          <div style={{ position: 'sticky', bottom: 100, paddingTop: 12 }}>
+            <button
+              id="generate-new-plan-btn"
+              className="btn-primary"
+              onClick={() => navigate('/generate-plan')}
+            >
+              🔄 Generate New Plan
+            </button>
+          </div>
+        )}
       </div>
 
       <BottomNav />
